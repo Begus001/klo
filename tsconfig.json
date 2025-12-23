@@ -1,0 +1,9 @@
+{
+    "include": ["messages.ts"],
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "module": "esnext",
+        "target": "esnext",
+        "strict": true
+    }
+}
