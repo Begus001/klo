@@ -4,8 +4,12 @@
   "main": "index.js",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.2.1",

@@ -51,43 +51,44 @@ wss.on("connection", (ws) => {
     ws.on("message", (strmsg: string) => {
         let msg: Message = JSON.parse(strmsg);
         console.log(msg);
-        if (msg.type === MessageType.SYNC_1) {
-            console.log("videoState:");
-            console.log(videoState);
-            if (!videoState.url) {
-                ws.send(JSON.stringify({
-                    type: MessageType.NOT_INIT
-                } satisfies Message));
-
-                ws.send(JSON.stringify({
-                    type: MessageType.SYNC_1
-                } satisfies Message));
-
-                return;
-            }
-
-            ws.send(JSON.stringify({
-                type: MessageType.SYNC_2,
-                data: videoState
-            }));
-        }
-        else if (msg.type === MessageType.SYNC_2) {
-            let data = msg.data as Sync2Message;
-            videoState = data;
-        }
-        else if (msg.type === MessageType.SEEK) {
-            let data = msg.data as SeekMessage;
-            videoState.time = data.time;
+        if (msg instanceof SeekMessage) {
+            videoState.time = msg.data;
             sendToAllClients(ws, msg);
         }
-        else if (msg.type === MessageType.PLAYBACK) {
-            let data = msg.data as PlaybackMessage;
-            videoState.playbackState = data.state;
+        // if (msg.type === MessageType.SYNC_1) {
+        //     console.log("videoState:");
+        //     console.log(videoState);
+        //     if (!videoState.url) {
+        //         ws.send(JSON.stringify({
+        //             type: MessageType.NOT_INIT
+        //         } satisfies Message));
+        //
+        //         ws.send(JSON.stringify({
+        //             type: MessageType.SYNC_1
+        //         } satisfies Message));
+        //
+        //         return;
+        //     }
+        //
+        //     ws.send(JSON.stringify({
+        //         type: MessageType.SYNC_2,
+        //         data: videoState
+        //     }));
+        // }
+        // else if (msg.type === MessageType.SYNC_2) {
+        //     // let data = msg.data as Sync2Message;
+        //     // videoState = data;
+        // }
+        if (msg.type === MessageType.PLAYBACK) {
+            console.log("got playback msg");
+            sendToAllClients(ws, msg);
+        }
+        else if (msg.type === MessageType.SEEK) {
+            console.log("got seek msg");
             sendToAllClients(ws, msg);
         }
         else if (msg.type === MessageType.URL_CHANGE) {
-            let data = msg.data as UrlChangeMessage;
-            videoState.url = data.url;
+            console.log("got url msg");
             sendToAllClients(ws, msg);
         }
     });

@@ -8,24 +8,44 @@ export enum MessageType {
 }
 
 export interface Message {
-    type: MessageType;
-    data?: any;
+    type: MessageType,
+    data?: any
 }
 
-export interface PlaybackMessage {
-    state: boolean;
+export class PlaybackMessage implements Message {
+    type = MessageType.PLAYBACK;
+    data: boolean;
+    constructor(state: boolean) {
+        this.data = state;
+    }
 }
 
-export interface SeekMessage {
-    time: number;
+export class SeekMessage implements Message {
+    type = MessageType.SEEK;
+    data: number;
+    constructor(time: number) {
+        this.data = time;
+    }
 }
 
-export interface Sync2Message {
+export interface VideoState {
     url: string;
     time: number;
     playbackState: boolean;
 }
 
-export interface UrlChangeMessage {
-    url: string;
+export class Sync2Message implements Message {
+    type = MessageType.SYNC_2;
+    data: VideoState;
+    constructor(state: VideoState) {
+        this.data = state;
+    }
+}
+
+export class UrlChangeMessage implements Message {
+    type = MessageType.URL_CHANGE;
+    data: string;
+    constructor(url: string) {
+        this.data = url;
+    }
 }

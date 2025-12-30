@@ -1,4 +1,11 @@
 {
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "build": "esbuild --bundle --platform=browser --format=esm --allow-overwrite --outdir=. *.ts",
+    "watch": "esbuild --bundle --platform=browser --format=esm --allow-overwrite --watch --outdir=. *.ts",
+    "clean": "rm -rf *.js",
+    "browser": "web-ext run -p debugProfile -s . --devtools"
+  },
   "devDependencies": {
     "@types/firefox-webext-browser": "^143.0.0"
   }
