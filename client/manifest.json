@@ -23,6 +23,16 @@
     ],
     "background": {
         "scripts": ["background.js"],
+        "persistent": true,
         "type": "module"
+    },
+    "sidebar_action": {
+        "default_title": "My sidebar",
+        "default_panel": "sidebar/sidebar.html",
+        "default_icon": "res/icon-48.png"
+    },
+	"icons": {
+        "32": "res/icon-32.png",
+        "48": "res/icon-48.png"
     }
 }

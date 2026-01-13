@@ -1,11 +1,11 @@
 {
   "name": "klo-server",
+  "license": "AGPL-3.0-only",
   "version": "0.0.0",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "GPL-3.0-only",
+  "author": "Benjamin Goisser <benjamin.goisser.bg@gmail.com>",
+  "homepage": "https://git.goisser.net/Benjamin/klo",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch"

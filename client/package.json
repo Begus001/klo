@@ -1,12 +1,27 @@
 {
-  "license": "GPL-3.0-only",
+  "name": "klo",
+  "license": "AGPL-3.0-only",
+  "version": "0.0.0",
+  "author": "Benjamin Goisser <benjamin.goisser.bg@gmail.com>",
+  "homepage": "https://git.goisser.net/Benjamin/klo",
+  "type": "module",
   "scripts": {
-    "build": "esbuild --bundle --platform=browser --format=esm --allow-overwrite --outdir=. *.ts",
-    "watch": "esbuild --bundle --platform=browser --format=esm --allow-overwrite --watch --outdir=. *.ts",
+    "build": "rollup -c rollup.config.js",
+    "watch": "rollup -c rollup.config.js --watch",
     "clean": "rm -rf *.js",
     "browser": "web-ext run -p debugProfile -s . --devtools"
   },
+  "dependencies": {
+    "svelte": "^5.46.3"
+  },
   "devDependencies": {
-    "@types/firefox-webext-browser": "^143.0.0"
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/firefox-webext-browser": "^143.0.0",
+    "rollup": "^4.55.1",
+    "rollup-plugin-svelte": "^7.2.3",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
   }
 }
