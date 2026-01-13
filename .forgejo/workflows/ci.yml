@@ -1,0 +1,28 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: build common
+        run: |
+          npm install -g typescript
+          tsc
+
+      - name: build
+        run: |
+          echo $PWD
+          ls -lah
+          cd client
+          npm i
+          npm run build
+          ls -lah
+          ls -lah sidebar/
+
+      - name: package
+        run: |
+          npm i -g web-ext
+          web-ext build -s client -a . -n "klo.zip"
+          ls -lah
