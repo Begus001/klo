@@ -1,0 +1,53 @@
+name: build
+description: "Build the client and server and upload them as artifacts"
+
+inputs:
+  upload-artifacts:
+    default: 'true'
+    description: "If artifacts should be uploaded or not"
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v6
+
+    - name: install build tools
+      shell: bash
+      run: |
+        npm i -g typescript web-ext
+
+    - name: build common
+      shell: bash
+      run: |
+        tsc
+
+    - name: build client
+      shell: bash
+      run: |
+        cd client
+        npm i
+        npm run build
+        web-ext build -s . -a . -n "klo-client.zip"
+
+    - name: build server
+      shell: bash
+      run: |
+        cd server
+        npm i
+        npm run build
+        zip klo-server.zip index.js
+
+    - name: upload client
+      if: inputs.upload-artifacts == 'true'
+      uses: forgejo/upload-artifact@v4
+      with:
+        name: klo-client
+        path: client/klo-client.zip
+
+    - name: upload server
+      if: inputs.upload-artifacts == 'true'
+      uses: forgejo/upload-artifact@v4
+      with:
+        name: klo-server
+        path: server/klo-server.zip
+

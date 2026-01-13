@@ -1,0 +1,44 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: docker
+    name: build
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: build
+        uses: ./.forgejo/actions/build
+        with:
+          upload-artifacts: true
+
+  release:
+    runs-on: docker
+    needs: build
+    steps:
+      - uses: forgejo/download-artifact@v4
+        with:
+          name: klo-client
+          path: dist/
+
+      - uses: forgejo/download-artifact@v4
+        with:
+          name: klo-server
+          path: dist/
+
+      - uses: https://code.forgejo.org/actions/forgejo-release@v2.7.3
+        with:
+          direction: upload
+          url: https://git.goisser.net
+          repo: Benjamin/klo
+          token: ${{ secrets.RELEASE_TOKEN }}
+          tag: ${{ github.ref_name }}
+          release-dir: dist/
+          release-notes: Automated release
+          prerelease: true
+
