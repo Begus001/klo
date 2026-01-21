@@ -9,7 +9,7 @@
     "build": "rollup -c rollup.config.js",
     "watch": "rollup -c rollup.config.js --watch",
     "clean": "rm -rf dist",
-    "dev": "( web-ext run 2>&1 >/dev/null ) & sleep 4 && npm run watch"
+    "dev": "npm run build && ( web-ext run 2>&1 >/dev/null ) & sleep 4 && npm run watch"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",

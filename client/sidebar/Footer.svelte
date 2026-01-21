@@ -1,19 +1,37 @@
 <script lang="ts">
-  // export let state = false;
-  //
-  // export const setState = (connected: boolean) => {
-  //   state = connected;
-  //   console.log("setting state to", connected);
-  // };
-  //
-  // export const getState = () => {
-  //   return state;
-  // }
+  import { onMount } from "svelte";
+  import {
+    ConnectionState,
+    MessageType,
+    type Message,
+  } from "../internal-messages";
+
+  let state = $state("Disconnected");
+
+  export function setConnected(connectionState: ConnectionState) {
+    if (connectionState === ConnectionState.DISCONNECTED) {
+      state = "Disconnected";
+    }
+    else if (connectionState === ConnectionState.CONNECTING) {
+      state = "Connecting...";
+    }
+    else if (connectionState === ConnectionState.CONNECTED) {
+      state = "Connected";
+    }
+  }
+
+  onMount(() => {
+
+    browser.runtime.onMessage.addListener((msg: Message) => {
+      if (msg.type === MessageType.CONNECTION_CHANGED) {
+          setConnected(msg.data);
+      }
+    });
+
+  });
 </script>
 
-<footer>
-  lel
-</footer>
+<footer>{state}</footer>
 
 <style>
   footer {
@@ -22,7 +40,7 @@
     left: 0;
     width: 100%;
     text-align: center;
-    color: var(--footer-fore-color);
-    background-color: var(--footer-back-color);
+    background-color: #0a0a0a;
+    padding: 3px;
   }
 </style>

@@ -1,22 +1,29 @@
 export class ReconWebSocket {
     private ws: WebSocket | null = null;
     private url = "";
-    private reconnectDelayMs = 500;
+    private reconnectDelayMs = 1000;
+    private reconnectTimeout?: NodeJS.Timeout;
     private manuallyClosed = false;
 
     constructor(
         private readonly onMessage: (ws: WebSocket, data: any) => void,
+        private readonly onConnecting?: (ws: WebSocket) => void,
+        private readonly onConnected?: (ws: WebSocket) => void,
+        private readonly onDisconnected?: (ws: WebSocket) => void,
         private readonly onError?: (err: Event) => void,
     ) {}
 
     async connect(url: string): Promise<void> {
         this.url = url;
         this.manuallyClosed = false;
+        clearTimeout(this.reconnectTimeout);
 
         return new Promise<void>((resolve, reject) => {
-            console.log("Klo: trying to connect");
+            console.debug("trying to connect");
             const ws = new WebSocket(url);
             this.ws = ws;
+
+            this.onConnecting?.(this.ws);
 
             const cleanup = () => {
                 ws.onopen = null;
@@ -25,13 +32,15 @@ export class ReconWebSocket {
 
             ws.onopen = () => {
                 cleanup();
-                console.log("Klo: connected");
+                console.debug("connected");
+                this.onConnected?.(this.ws!);
                 resolve();
             };
 
             ws.onerror = (e) => {
                 cleanup();
                 reject(new Error(`Failed to connect to ${url}`));
+                console.debug(e);
                 this.onError?.(e);
             };
 
@@ -41,7 +50,7 @@ export class ReconWebSocket {
 
             ws.onclose = () => {
                 if (!this.manuallyClosed) {
-                    console.log("Klo: disconnected");
+                    console.debug("disconnected");
                     this.scheduleReconnect();
                 }
             };
@@ -49,7 +58,7 @@ export class ReconWebSocket {
     }
 
     private scheduleReconnect() {
-        setTimeout(() => {
+        this.reconnectTimeout = setTimeout(() => {
             if (!this.manuallyClosed) {
                 this.connect(this.url).catch(() => {
                     /* swallow initial connect failure; reconnect loop continues */
@@ -65,6 +74,8 @@ export class ReconWebSocket {
     }
 
     close() {
+        clearTimeout(this.reconnectTimeout);
+        this.onDisconnected?.(this.ws!);
         this.manuallyClosed = true;
         this.ws?.close();
         this.ws = null;

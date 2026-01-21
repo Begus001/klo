@@ -5,7 +5,7 @@ import fs from "fs-extra";
 
 export default [
   {
-    input: ["background.ts", "content.ts", "recon-websocket.ts"],
+    input: ["background.ts", "content.ts", "recon-websocket.ts", "internal-messages.ts"],
     output: {
       dir: "dist",
       format: "esm",

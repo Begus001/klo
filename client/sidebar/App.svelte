@@ -1,36 +1,33 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import Settings from "./Settings.svelte";
   import Footer from "./Footer.svelte";
-  import RoomList from "./RoomList.svelte";
 
-  let dark = $state(true);
+  let settingsComponent: Settings;
+  let footerComponent: Footer;
 
   onMount(() => {
-    document.body.classList.add("dark");
-
-    browser.runtime.onMessage.addListener((msg) => {
-      console.log(msg);
-    });
   });
 
-  function toggleDark() {
-    dark = !dark;
-    document.body.classList.toggle("dark");
-    browser.runtime.sendMessage("kekw");
-  }
 </script>
 
 <main>
-  <h1>Hello, Svelte!</h1>
-  <button onclick={() => toggleDark()}>{dark ? "light" : "dark"}</button>
-  <RoomList />
+  <button onclick={() => settingsComponent.toggleVisibility()}>Settings</button>
+  <Settings bind:this={settingsComponent} />
 </main>
 
-<Footer />
+<Footer bind:this={footerComponent} />
 
 <style>
   :global(body) {
-    color: var(--primary-fore-color);
-    background-color: var(--primary-back-color);
+    color: #eaeaea;
+    background-color: #151921;
   }
+
+  main {
+    width: 100%;
+    /* display: flex; */
+    flex-direction: column;
+  }
+
 </style>
