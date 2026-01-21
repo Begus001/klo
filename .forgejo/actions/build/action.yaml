@@ -11,15 +11,11 @@ runs:
   steps:
     - uses: actions/checkout@v6
 
-    - name: install build tools
-      shell: bash
-      run: |
-        npm i -g typescript web-ext
-
     - name: build common
       shell: bash
       run: |
-        tsc
+        npm i typescript
+        npx tsc
 
     - name: build client
       shell: bash
@@ -27,7 +23,7 @@ runs:
         cd client
         npm i
         npm run build
-        web-ext build -s . -a . -n "klo-client.zip"
+        npx web-ext build -s dist -a . -n "klo-client.zip"
 
     - name: build server
       shell: bash

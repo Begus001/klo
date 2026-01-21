@@ -1,4 +1,4 @@
-import { Message, MessageType, Sync2Message, PlaybackMessage, SeekMessage, UrlChangeMessage } from "../messages.js";
+import { type Message, MessageType, Sync2Message, PlaybackMessage, SeekMessage, UrlChangeMessage } from "../messages.js";
 
 let targetVideoElement: HTMLVideoElement | null = null;
 let isProgrammaticSeek = false;

@@ -1,14 +1,12 @@
 import { ReconWebSocket } from "./recon-websocket.js";
-import { Message, MessageType, PlaybackMessage, SeekMessage, UrlChangeMessage } from "../messages.js";
-
-let blockUrlChange = false;
+import { type Message, MessageType, PlaybackMessage, SeekMessage, UrlChangeMessage } from "../messages.js";
 
 let targetTab = (await browser.tabs.query({ index: 0 }))[0];
 console.debug(`selected tab: id=${targetTab.id}, title=${targetTab.title}`);
 
 console.log("background script running")
 
-const onMsg = (ws: WebSocket, strmsg: string) => {
+const onMsg = (_ws: WebSocket, strmsg: string) => {
     console.log("Klo:", strmsg);
     let msg: Message = JSON.parse(strmsg);
     if (msg.type === MessageType.PLAYBACK) {
@@ -34,6 +32,7 @@ const onMsg = (ws: WebSocket, strmsg: string) => {
 };
 
 browser.runtime.onMessage.addListener((msg) => {
+    console.log("background got msg:", msg);
     if (msg.type === "playback") {
         sendJson(new PlaybackMessage(msg.value));
     }
@@ -45,13 +44,12 @@ browser.runtime.onMessage.addListener((msg) => {
     }
 });
 
-browser.tabs.onUpdated.addListener((tabId, info, tab) => {
+browser.tabs.onUpdated.addListener(() => {
 });
 
 let ws = new ReconWebSocket(onMsg);
 
 const sendJson = (obj: object) => ws.send(JSON.stringify(obj));
-await ws.connect("wss://goisser.net:42070").catch(e => {
+ws.connect("wss://goisser.net:42070").catch(() => {
     console.warn("Klo: could not connect");
 });
-

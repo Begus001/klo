@@ -27,7 +27,7 @@
         "type": "module"
     },
     "sidebar_action": {
-        "default_title": "My sidebar",
+        "default_title": "Klo",
         "default_panel": "sidebar/sidebar.html",
         "default_icon": "res/icon-48.png"
     },

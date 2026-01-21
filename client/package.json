@@ -8,20 +8,18 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "watch": "rollup -c rollup.config.js --watch",
-    "clean": "rm -rf *.js",
-    "browser": "web-ext run -p debugProfile -s . --devtools"
-  },
-  "dependencies": {
-    "svelte": "^5.46.3"
+    "clean": "rm -rf dist",
+    "dev": "( web-ext run 2>&1 >/dev/null ) & sleep 4 && npm run watch"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/firefox-webext-browser": "^143.0.0",
     "rollup": "^4.55.1",
     "rollup-plugin-svelte": "^7.2.3",
+    "svelte": "^5.46.3",
     "tslib": "^2.8.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "web-ext": "^9.2.0"
   }
 }

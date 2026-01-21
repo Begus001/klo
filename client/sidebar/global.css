@@ -1,0 +1,23 @@
+body {
+  --primary-fore-color: #000000;
+  --primary-back-color: #ffffff;
+
+  --footer-fore-color: #000000;
+  --footer-back-color: #aaaaaa;
+
+  /* --listitem-back-color: #202530; */
+  /* --listitem-hover-back-color: #272530; */
+
+  margin: 10px 10px;
+}
+
+body.dark {
+  --primary-fore-color: #eaeaea;
+  --primary-back-color: #151921;
+
+  --footer-fore-color: #ffffff;
+  --footer-back-color: #000000;
+
+  --listitem-back-color: #202530;
+  --listitem-hover-back-color: #272530;
+}
