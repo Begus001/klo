@@ -11,23 +11,11 @@
 
 </script>
 
-<main>
-  <button onclick={() => settingsComponent.toggleVisibility()}>Settings</button>
+<main class="container-fluid vh-100 d-flex flex-column p-3">
   <Settings bind:this={settingsComponent} />
 </main>
 
 <Footer bind:this={footerComponent} />
 
 <style>
-  :global(body) {
-    color: #eaeaea;
-    background-color: #151921;
-  }
-
-  main {
-    width: 100%;
-    /* display: flex; */
-    flex-direction: column;
-  }
-
 </style>

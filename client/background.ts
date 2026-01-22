@@ -66,7 +66,9 @@ browser.runtime.onMessage.addListener((msg: Message) => {
     // }
     if (msg.type === MessageType.CONNECT) {
         ws.close();
-        ws.connect(msg.data);
+        if (msg.data) {
+            ws.connect(msg.data);
+        }
     }
 });
 

@@ -7,7 +7,7 @@ export enum MessageType {
 
 export interface ConnectMessage {
     type: MessageType.CONNECT;
-    data: string;
+    data?: string;
 }
 
 export enum ConnectionState {
