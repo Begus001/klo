@@ -11,12 +11,6 @@ runs:
   steps:
     - uses: actions/checkout@v6
 
-    - name: build common
-      shell: bash
-      run: |
-        npm i typescript
-        npx tsc
-
     - name: build client
       shell: bash
       run: |

@@ -6,6 +6,20 @@ import fs from "fs-extra";
 
 export default [
   {
+    input: "../messages.ts",
+    output: {
+      file: "../messages.js",
+      format: "esm",
+    },
+    plugins: [
+      typescript({
+        compilerOptions: {
+          rootDir: ".."
+        }
+      }),
+    ]
+  },
+  {
     input: ["background.ts", "content.ts", "recon-websocket.ts", "internal-messages.ts"],
     output: {
       dir: "dist",
