@@ -31,13 +31,13 @@ async function main() {
 
     debug("video element found");
 
-    targetVideoElement.addEventListener("seeking", (e) => {
+    targetVideoElement.addEventListener("seeked", (e) => {
         if (!targetVideoElement) {
             targetVideoElement = e.target as HTMLVideoElement;
         }
 
         if (isProgrammaticSeek) {
-            isProgrammaticSeek = false;
+            setTimeout(() => isProgrammaticSeek = false, 20);
             return;
         }
 
@@ -54,7 +54,7 @@ async function main() {
         }
 
         if (isProgrammaticPlay) {
-            isProgrammaticPlay = false;
+            setTimeout(() => isProgrammaticPlay = false, 20);
             return;
         }
 
@@ -71,7 +71,7 @@ async function main() {
         }
 
         if (isProgrammaticPause) {
-            isProgrammaticPause = false;
+            setTimeout(() => isProgrammaticPause = false, 20);
             return;
         }
 
