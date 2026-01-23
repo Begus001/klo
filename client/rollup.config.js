@@ -50,13 +50,30 @@ export default [
   {
     input: [
       "background.ts",
-      "content.ts",
       "recon-websocket.ts",
       "internal-messages.ts"
     ],
     output: {
       dir: "dist",
       format: "esm",
+      compact: true,
+    },
+    plugins: [
+      resolve({
+        browser: true,
+      }),
+      typescript(),
+      copy_with_transform({ input: "manifest.json", output: "manifest.json", transform: (input) => JSON.stringify(JSON.parse(input)) }),
+      terser(),
+    ],
+  },
+  {
+    input: [
+      "content.ts",
+    ],
+    output: {
+      dir: "dist",
+      format: "cjs",
       compact: true,
     },
     plugins: [

@@ -16,7 +16,7 @@
                 "*://*/*"
             ],
             "js": [
-                "content-script.js"
+                "content.js"
             ],
             "run_at": "document_end"
         }
@@ -28,11 +28,6 @@
     },
     "sidebar_action": {
         "default_title": "Klo",
-        "default_panel": "sidebar/sidebar.html",
-        "default_icon": "res/icon-48.png"
-    },
-	"icons": {
-        "32": "res/icon-32.png",
-        "48": "res/icon-48.png"
+        "default_panel": "sidebar/sidebar.html"
     }
 }

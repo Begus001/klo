@@ -1,4 +1,4 @@
-import { type Message, MessageType, Sync2Message, PlaybackMessage, SeekMessage, UrlChangeMessage } from "../messages.js";
+import { MessageType, type Message } from "./internal-messages";
 
 let targetVideoElement: HTMLVideoElement | null = null;
 let isProgrammaticSeek = false;
@@ -22,6 +22,7 @@ function error(msg: string) {
 }
 
 async function main() {
+    log("content script running");
     let targetVideoElement = document.querySelector("video");
     if (!targetVideoElement) {
         warn("no video element on this page");
@@ -29,14 +30,6 @@ async function main() {
     }
 
     debug("video element found");
-
-
-
-    log("connected")
-
-    // ws.send(JSON.stringify({
-    //     type: MessageType.SYNC_1
-    // } satisfies Message));
 
     targetVideoElement.addEventListener("seeking", (e) => {
         if (!targetVideoElement) {
@@ -48,19 +41,11 @@ async function main() {
             return;
         }
 
-        console.log("sending seek message to backend")
+        debug("user seek");
         browser.runtime.sendMessage({
-            type: "seek",
-            value: targetVideoElement.currentTime,
-        });
-
-        // debug("user seek");
-        // ws.send(JSON.stringify({
-        //     type: MessageType.SEEK,
-        //     data: {
-        //         time: targetVideoElement.currentTime,
-        //     } satisfies SeekMessage
-        // } satisfies Message));
+            type: MessageType.SEEK,
+            data: targetVideoElement.currentTime,
+        } as Message);
     });
 
     targetVideoElement.addEventListener("play", (e) => {
@@ -73,19 +58,11 @@ async function main() {
             return;
         }
 
+        debug("user play");
         browser.runtime.sendMessage({
-            type: "playback",
-            value: !targetVideoElement.paused,
-        });
-
-        // debug("user play");
-        // ws.send(JSON.stringify({
-        //     type: MessageType.PLAYBACK,
-        //     data: {
-        //         state: true
-        //     } satisfies PlaybackMessage
-        // } satisfies Message));
-
+            type: MessageType.PLAYBACK,
+            data: !targetVideoElement.paused,
+        } as Message);
     });
 
     targetVideoElement.addEventListener("pause", (e) => {
@@ -98,34 +75,25 @@ async function main() {
             return;
         }
 
+        debug("user pause");
         browser.runtime.sendMessage({
-            type: "playback",
-            value: !targetVideoElement.paused,
-        });
-
-        // debug("user pause");
-        // ws.send(JSON.stringify({
-        //     type: MessageType.PLAYBACK,
-        //     data: {
-        //         state: false
-        //     } satisfies PlaybackMessage
-        // } satisfies Message));
+            type: MessageType.PLAYBACK,
+            data: !targetVideoElement.paused,
+        } as Message);
     });
 }
 
-browser.runtime.onMessage.addListener((msg, resp) => {
-    if (msg.action === "playback") {
-        if (msg.value) {
+browser.runtime.onMessage.addListener((msg: Message) => {
+    if (msg.type === MessageType.PLAYBACK) {
+        if (msg.data) {
             play();
-        } else {
+        }
+        else {
             pause();
         }
     }
-    else if (msg.action === "seek") {
-        seek(msg.value);
-    }
-    else if (msg.action === "url") {
-        log("url change to " + msg.value);
+    else if (msg.type === MessageType.SEEK) {
+        seek(msg.data);
     }
 });
 
@@ -157,15 +125,4 @@ function pause() {
 }
 
 main()
-
-// setInterval(() => {
-//     let rand = Math.random();
-//     if (rand < 1/3) {
-//         play();
-//     } else if (rand < 2/3) {
-//         pause();
-//     } else {
-//         seek(Math.random() * 10);
-//     }
-// }, 2000);
 

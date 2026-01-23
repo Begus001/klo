@@ -1,8 +1,10 @@
-export type Message = ConnectMessage | ConnectionChangedMessage;
+export type Message = ConnectMessage | ConnectionChangedMessage | PlaybackMessage | SeekMessage;
 
 export enum MessageType {
     CONNECT,
-    CONNECTION_CHANGED
+    CONNECTION_CHANGED,
+    PLAYBACK,
+    SEEK,
 }
 
 export interface ConnectMessage {
@@ -19,4 +21,14 @@ export enum ConnectionState {
 export interface ConnectionChangedMessage {
     type: MessageType.CONNECTION_CHANGED;
     data: ConnectionState;
+}
+
+export interface PlaybackMessage {
+    type: MessageType.PLAYBACK;
+    data: boolean;
+}
+
+export interface SeekMessage {
+    type: MessageType.SEEK;
+    data: number;
 }
