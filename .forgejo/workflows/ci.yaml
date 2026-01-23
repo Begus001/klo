@@ -14,4 +14,4 @@ jobs:
       - name: build
         uses: ./.forgejo/actions/build
         with:
-          upload-artifacts: true
+          upload-artifacts: false
