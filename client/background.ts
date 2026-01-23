@@ -52,7 +52,11 @@ browser.runtime.onMessage.addListener((msg: Message) => {
     if (msg.type === MessageType.CONNECT) {
         ws.close();
         if (msg.data) {
-            ws.connect(msg.data);
+            let address = msg.data;
+            if (msg.data.indexOf("://") < 0) {
+                address = `wss://${msg.data}`;
+            }
+            ws.connect(address);
         }
     }
     else if (msg.type === MessageType.PLAYBACK) {

@@ -19,8 +19,14 @@
     });
   });
 
-  export function toggleVisibility() {
+  export async function toggleVisibility() {
     hidden = !hidden;
+    if (!hidden) {
+      let lastAddress = await getAddress();
+      if (lastAddress) {
+        serverInputElement.value = lastAddress;
+      }
+    }
   }
 
   function toggleConnect() {
@@ -29,12 +35,23 @@
         type: MessageType.CONNECT,
         data: serverInputElement.value,
       } as Message);
+
+      saveAddress();
     } else {
       browser.runtime.sendMessage({
         type: MessageType.CONNECT,
         data: undefined,
       } as Message);
     }
+  }
+
+  function saveAddress() {
+    browser.storage.local.set({"last-address": serverInputElement.value});
+  }
+
+  async function getAddress() {
+    let tmp = await browser.storage.local.get("last-address");
+    return tmp["last-address"];
   }
 </script>
 
