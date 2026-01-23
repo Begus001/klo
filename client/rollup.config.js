@@ -3,6 +3,33 @@ import resolve from "@rollup/plugin-node-resolve";
 import typescript from '@rollup/plugin-typescript';
 import css from "rollup-plugin-import-css";
 import fs from "fs-extra";
+import { minify as minifyHtml } from "html-minifier-terser";
+import terser from "@rollup/plugin-terser";
+
+class CopyOptions {
+  /** @type {string} */
+  input;
+  /** @type {string} */
+  output;
+  /** @type {(content: string) => string} */
+  transform;
+}
+
+/** @param {CopyOptions} [options] */
+function copy_with_transform(options) {
+  return {
+    name: "copy-with-transform",
+    async buildEnd() {
+      let input = fs.readFileSync(options.input, "utf8");
+      let output = await options.transform(input);
+      this.emitFile({
+        type: "prebuilt-chunk",
+        fileName: options.output,
+        code: output,
+      });
+    }
+  }
+}
 
 export default [
   {
@@ -17,41 +44,40 @@ export default [
           rootDir: ".."
         }
       }),
-    ]
+      terser(),
+    ],
   },
   {
-    input: ["background.ts", "content.ts", "recon-websocket.ts", "internal-messages.ts"],
+    input: [
+      "background.ts",
+      "content.ts",
+      "recon-websocket.ts",
+      "internal-messages.ts"
+    ],
     output: {
       dir: "dist",
       format: "esm",
+      compact: true,
     },
     plugins: [
       resolve({
         browser: true,
       }),
       typescript(),
-      {
-        name: "copy files",
-        buildEnd() {
-          fs.copy("manifest.json", "dist/manifest.json");
-        }
-      },
+      copy_with_transform({ input: "manifest.json", output: "manifest.json", transform: (input) => JSON.stringify(JSON.parse(input)) }),
+      terser(),
     ],
   },
   {
     input: "sidebar/sidebar.ts",
     output: {
       dir: "dist/sidebar",
-      format: "esm"
+      format: "esm",
+      compact: true,
     },
     plugins: [
-      {
-        name: "copy files",
-        buildEnd() {
-          fs.copy("sidebar/sidebar.html", "dist/sidebar/sidebar.html");
-          fs.copy("sidebar/global.css", "dist/sidebar/global.css");
-        }
-      },
+      copy_with_transform({ input: "sidebar/sidebar.html", output: "sidebar.html", transform: (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
+      copy_with_transform({ input: "sidebar/global.css", output: "global.css", transform: (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
       svelte({
         compilerOptions: {
           dev: false,
@@ -67,6 +93,7 @@ export default [
       css({
         output: "sidebar.css"
       }),
+      terser(),
     ]
   },
 ]
