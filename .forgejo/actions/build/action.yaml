@@ -10,10 +10,14 @@ runs:
   using: 'composite'
   steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-tags: true
+        fetch-depth: 0
 
     - name: build client
       shell: bash
       run: |
+        set -x
         cd client
         npm i
         npm run build
@@ -22,6 +26,7 @@ runs:
     - name: build server
       shell: bash
       run: |
+        set -x
         cd server
         npm i
         npm run build

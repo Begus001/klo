@@ -10,6 +10,8 @@ jobs:
     name: build
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-tags: true
 
       - name: build
         uses: ./.forgejo/actions/build
