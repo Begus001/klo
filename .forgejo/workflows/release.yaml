@@ -62,7 +62,7 @@ jobs:
           mkdir release
 
           mv *.xpi "release/klo-client-${{ forgejo.ref_name }}.xpi"
-          mv artifacts/klo-server.zip release
+          mv artifacts/klo-server.zip release/klo-server-${{ forgejo.ref_name }}.zip
 
           ls -lAh
           ls -lAh release
