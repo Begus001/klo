@@ -49,7 +49,7 @@ jobs:
 
           ls -lAh dist
 
-          web-ext sign                              \
+          web-ext sign                                   \
             -s dist                                      \
             -a .                                         \
             --upload-source-code repo/client             \
@@ -66,7 +66,21 @@ jobs:
           ls -lAh
           ls -lAh release
 
-          curl -X PUT -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" -v https://git.goisser.net/api/packages/Benjamin/generic/klo-client/${{ forgejo.ref_name }}/klo-client-${{ forgejo.ref_name }}.xpi -T release/klo-client-${{ forgejo.ref_name }}.xpi
+          curl                                                                                                                                 \
+            -X PUT                                                                                                                             \
+            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}"                                                                             \
+            -v https://git.goisser.net/api/packages/Benjamin/generic/klo-client/${{ forgejo.ref_name }}/klo-client-${{ forgejo.ref_name }}.xpi \
+            -T release/klo-client-${{ forgejo.ref_name }}.xpi
+
+      - name: parse changelog
+        id: parse_changelog
+        run: |
+          set -x
+          changelog=`perl -0777 -ne 'if (/(?<=## ${{ forgejo.ref_name }}\n\n)[\S\s]+?(?=\n\n##|\z)/m) { print "$&\n"; }' repo/CHANGELOG.md`
+          echo "$changelog"
+          echo "changelog<<EOF" >> $FORGEJO_OUTPUT
+          echo "$changelog" >> $FORGEJO_OUTPUT
+          echo "EOF" >> $FORGEJO_OUTPUT
 
       - uses: https://code.forgejo.org/actions/forgejo-release@v2.7.3
         with:
@@ -76,5 +90,5 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
           tag: ${{ forgejo.ref_name }}
           release-dir: release/
-          release-notes: Automated release
+          release-notes: "${{ steps.parse_changelog.outputs.changelog }}"
           prerelease: true
