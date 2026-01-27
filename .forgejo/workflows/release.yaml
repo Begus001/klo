@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: docker
+    runs-on: node-24
     name: build
     steps:
       - uses: actions/checkout@v6
@@ -18,18 +18,57 @@ jobs:
           upload-artifacts: true
 
   release:
-    runs-on: docker
+    runs-on: node-24
     needs: build
     steps:
       - uses: forgejo/download-artifact@v4
         with:
           name: klo-client
-          path: dist/
+          path: artifacts/
 
       - uses: forgejo/download-artifact@v4
         with:
           name: klo-server
-          path: dist/
+          path: artifacts/
+
+      - uses: actions/checkout@v6
+        with:
+          path: ${{ forgejo.workspace }}/repo
+
+      - name: sign extension
+        run: |
+          set -x
+
+          npm i -g web-ext
+
+          ls -lAh
+          ls -lAh artifacts
+          ls -lAh repo
+
+          unzip artifacts/klo-client.zip -d dist
+
+          ls -lAh dist
+
+          echo web-ext sign                              \
+            -s dist                                      \
+            -a .                                         \
+            --upload-source-code repo/client             \
+            --amo-metadata repo/client/amo-metadata.json \
+            --timeout 1800000                            \
+            --api-key "${{ secrets.MOZ_API_KEY }}"       \
+            --api-secret "${{ secrets.MOZ_API_SECRET }}"
+
+          touch akaslskdnilnv.xpi
+
+          mkdir release
+
+          mv *.xpi "release/klo-client-${{ forgejo.ref_name }}.xpi"
+          mv artifacts/klo-server.zip release
+
+          ls -lAh
+          ls -lAh release
+
+          curl -X PUT -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" -v https://git.goisser.net/api/packages/Benjamin/generic/klo-client/${{ forgejo.ref_name }}/klo-client-${{ forgejo.ref_name }}.xpi -T release/klo-client-${{ forgejo.ref_name }}.xpi
 
       - uses: https://code.forgejo.org/actions/forgejo-release@v2.7.3
         with:
@@ -37,8 +76,7 @@ jobs:
           url: https://git.goisser.net
           repo: Benjamin/klo
           token: ${{ secrets.RELEASE_TOKEN }}
-          tag: ${{ github.ref_name }}
-          release-dir: dist/
+          tag: ${{ forgejo.ref_name }}
+          release-dir: release/
           release-notes: Automated release
           prerelease: true
-

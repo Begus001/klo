@@ -9,6 +9,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: install build deps
+      shell: bash
+      run: |
+        apt update
+        apt install -y zip unzip
+
     - uses: actions/checkout@v6
       with:
         fetch-tags: true
@@ -16,18 +22,20 @@ runs:
 
     - name: build client
       shell: bash
+      working-directory: client
       run: |
         set -x
-        cd client
+        node -v
         npm i
         npm run build
         npx web-ext build -s dist -a . -n "klo-client.zip"
+        npx web-ext lint -s dist -a . --self-hosted
 
     - name: build server
       shell: bash
+      working-directory: server
       run: |
         set -x
-        cd server
         npm i
         npm run build
         zip klo-server.zip index.js

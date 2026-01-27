@@ -2,16 +2,16 @@ name: ci
 
 on:
   push:
+    branches:
+      - "**"
   pull_request:
 
 jobs:
   build:
-    runs-on: docker
+    runs-on: node-24
     name: build
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-tags: true
 
       - name: build
         uses: ./.forgejo/actions/build
