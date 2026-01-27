@@ -2,7 +2,8 @@
     "manifest_version": 2,
     "name": "Klo",
     "description": "WC - WatchCollectively (or Klo)",
-    "version": "1",
+    "version": "0.1.0",
+    "license": "AGPL-3.0-only",
     "permissions": [
         "webRequest",
         "activeTab",
@@ -30,5 +31,11 @@
     "sidebar_action": {
         "default_title": "Klo",
         "default_panel": "sidebar/sidebar.html"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "klo-client@goisser.net",
+            "update_url": "https://git.goisser.net/Benjamin/klo/raw/branch/main/client/updates.json"
+        }
     }
 }

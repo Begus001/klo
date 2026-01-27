@@ -1,0 +1,12 @@
+{
+  "addons": {
+    "klo-client@goisser.net": {
+      "updates": [
+        {
+          "version": "0.1.0",
+          "update_link": "https://git.goisser.net/api/packages/Benjamin/generic/klo-client/v0.1.0/klo-client-v0.1.0.xpi"
+        }
+      ]
+    }
+  }
+}

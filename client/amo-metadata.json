@@ -1,0 +1,21 @@
+{
+    "categories": [
+        "photos-music-videos",
+        "social-communication"
+    ],
+    "description": {
+        "en-US": "Klo is a browser addon that synchronizes online video playback between clients to watch online videos together."
+    },
+    "homepage": {
+        "en-US": "https://git.goisser.net/Benjamin/klo"
+    },
+    "name": {
+        "en-US": "Klo"
+    },
+    "version": {
+        "compatibility": [
+            "firefox"
+        ],
+        "license": "AGPL-3.0-only"
+    }
+}
