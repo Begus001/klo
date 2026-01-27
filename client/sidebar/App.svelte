@@ -3,6 +3,7 @@
   import Settings from "./Settings.svelte";
   import Footer from "./Footer.svelte";
 
+  const GIT_TAG = "__GIT_TAG__";
   let settingsComponent: Settings;
   let footerComponent: Footer;
 
@@ -15,7 +16,7 @@
   <Settings bind:this={settingsComponent} />
 </main>
 
-<Footer bind:this={footerComponent} />
+<Footer version={GIT_TAG} bind:this={footerComponent} />
 
 <style>
 </style>

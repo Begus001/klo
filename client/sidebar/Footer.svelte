@@ -7,25 +7,34 @@
   } from "../internal-messages";
 
   let state = $state(ConnectionState.DISCONNECTED);
+  let { version = "" } = $props();
 
   onMount(() => {
-
     browser.runtime.onMessage.addListener((msg: Message) => {
       if (msg.type === MessageType.CONNECTION_CHANGED) {
-          state = msg.data;
+        state = msg.data;
       }
     });
-
   });
 </script>
 
-{#if state === ConnectionState.DISCONNECTED}
-  <footer class="disconnected">Disconnected</footer>
-{:else if state === ConnectionState.CONNECTING}
-  <footer class="reconnecting">Connecting...</footer>
-{:else}
-  <footer class="connected">Connected</footer>
-{/if}
+<footer
+  class:disconnected={state == ConnectionState.DISCONNECTED}
+  class:connecting={state == ConnectionState.CONNECTING}
+  class:connected={state == ConnectionState.CONNECTED}
+>
+  <div id="version">
+    {version}
+  </div>
+
+  {#if state === ConnectionState.DISCONNECTED}
+    Disconnected
+  {:else if state === ConnectionState.CONNECTING}
+    Connecting...
+  {:else}
+    Connected
+  {/if}
+</footer>
 
 <style>
   footer {
@@ -38,11 +47,18 @@
     padding: 3px;
   }
 
+  #version {
+    display: block; 
+    position: fixed;
+    color: #888;
+    left: 5px;
+  }
+
   footer.disconnected {
     color: var(--bs-danger);
   }
 
-  footer.reconnecting {
+  footer.connecting {
     color: var(--bs-warning);
   }
 

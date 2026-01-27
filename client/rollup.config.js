@@ -5,6 +5,10 @@ import css from "rollup-plugin-import-css";
 import fs from "fs-extra";
 import { minify as minifyHtml } from "html-minifier-terser";
 import terser from "@rollup/plugin-terser";
+import { execSync } from "child_process";
+import replace from "@rollup/plugin-replace";
+
+const GIT_TAG = execSync("git describe --tags").toString().trim();
 
 class CopyOptions {
   /** @type {string} */
@@ -93,6 +97,7 @@ export default [
       compact: true,
     },
     plugins: [
+      replace({ __GIT_TAG__: GIT_TAG }),
       copy_with_transform({ input: "sidebar/sidebar.html", output: "sidebar.html", transform: (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
       copy_with_transform({ input: "sidebar/global.css", output: "global.css", transform: (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
       svelte({
