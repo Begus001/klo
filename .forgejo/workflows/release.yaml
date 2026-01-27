@@ -49,13 +49,14 @@ jobs:
 
           ls -lAh dist
 
-          web-ext sign                                   \
-            -s dist                                      \
-            -a .                                         \
-            --upload-source-code repo/client             \
-            --amo-metadata repo/client/amo-metadata.json \
-            --timeout 1800000                            \
-            --api-key "${{ secrets.MOZ_API_KEY }}"       \
+          web-ext sign                                                \
+            -s dist                                                   \
+            -a .                                                      \
+            --upload-source-code artifacts/klo-client.zip             \
+            --amo-metadata repo/client/amo-metadata.json              \
+            --channel unlisted                                        \
+            --timeout 1800000                                         \
+            --api-key "${{ secrets.MOZ_API_KEY }}"                    \
             --api-secret "${{ secrets.MOZ_API_SECRET }}"
 
           mkdir release
