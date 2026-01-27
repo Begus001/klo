@@ -1,5 +1,11 @@
 # Klo Changelog
 
+## v0.1.1
+
+Client:
+  - Add update definition file to enable automatic updates
+  - Add version display in sidebar footer
+
 ## v0.1.0
 
 Client:
