@@ -43,7 +43,17 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "klo-client@goisser.net",
-      "update_url": "https://git.goisser.net/Benjamin/klo/raw/branch/main/client/updates.json"
+      "update_url": "https://git.goisser.net/Benjamin/klo/raw/branch/main/client/updates.json",
+      "data_collection_permissions": {
+        "required": [
+          "browsingActivity",
+          "websiteContent",
+          "websiteActivity"
+        ],
+        "optional": [
+          "technicalAndInteraction"
+        ]
+      }
     }
   }
 }
