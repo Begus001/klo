@@ -6,5 +6,8 @@ export default {
         ],
         "devtools": true,
         "firefoxProfile": "debugProfile",
+    },
+    "lint": {
+        "selfHosted": true,
     }
 }

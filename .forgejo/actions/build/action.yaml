@@ -28,8 +28,8 @@ runs:
         node -v
         npm i
         npm run build
+        npx web-ext lint -s dist -a . --self-hosted -i sidebar/sidebar.js
         npx web-ext build -s dist -a . -n "klo-client.zip"
-        npx web-ext lint -s dist -a . --self-hosted
 
     - name: build server
       shell: bash
