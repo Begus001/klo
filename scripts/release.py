@@ -109,8 +109,7 @@ else:
 
 
 if yesno("Do you want to push the commit?"):
-    # os.system("git push")
-    print("git push")
+    os.system("git push")
 else:
     exit(0)
 
@@ -122,7 +121,6 @@ else:
 
 
 if yesno("Do you want to push the tag?"):
-    # os.system("git push --tags")
-    print("git push --tags")
+    os.system("git push --tags")
 else:
     exit(0)
