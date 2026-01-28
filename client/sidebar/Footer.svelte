@@ -23,35 +23,65 @@
   class:connecting={state == ConnectionState.CONNECTING}
   class:connected={state == ConnectionState.CONNECTED}
 >
-  <div id="version">
-    {version}
+  <div id="footer-start">
+    <div id="connection-status">
+      {#if state === ConnectionState.DISCONNECTED}
+        Disconnected
+      {:else if state === ConnectionState.CONNECTING}
+        Connecting...
+      {:else}
+        Connected
+      {/if}
+    </div>
   </div>
 
-  {#if state === ConnectionState.DISCONNECTED}
-    Disconnected
-  {:else if state === ConnectionState.CONNECTING}
-    Connecting...
-  {:else}
-    Connected
-  {/if}
+  <div id="footer-end">
+    <div id="version">
+      {version}
+    </div>
+  </div>
 </footer>
 
 <style>
   footer {
     position: fixed;
+    display: flex;
     bottom: 0;
     left: 0;
     width: 100%;
-    text-align: center;
     background-color: #0a0a0a;
-    padding: 3px;
+    padding: 3px 5px;
+    gap: 10px;
+  }
+
+  #footer-start {
+    display: flex;
+    flex-grow: 1;
+    justify-content: start;
+  }
+
+  #footer-end {
+    display: flex;
+    flex-grow: 1;
+    justify-content: end;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   #version {
-    display: block; 
-    position: fixed;
-    color: #888;
+    display: block;
+    color: #555;
     left: 5px;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  #connection-status {
+    display: block;
+    justify-self: end;
   }
 
   footer.disconnected {
