@@ -1,5 +1,12 @@
 # Klo Changelog
 
+## v0.1.2
+
+Client:
+  - Declare data collection permissions in manifest
+  - Add icon
+  - Revise footer layout
+
 ## v0.1.1
 
 Client:

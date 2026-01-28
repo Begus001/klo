@@ -9,6 +9,10 @@
         {
           "version": "0.1.1",
           "update_link": "https://git.goisser.net/api/packages/Benjamin/generic/klo-client/v0.1.1/klo-client-v0.1.1.xpi"
+        },
+        {
+          "version": "0.1.2",
+          "update_link": "https://git.goisser.net/api/packages/Benjamin/generic/klo-client/v0.1.2/klo-client-v0.1.2.xpi"
         }
       ]
     }
