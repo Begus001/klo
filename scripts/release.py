@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 
 import re
-import subprocess
+import sys
 import json
+import os
 
-# Ensure that git tag has been set
-resp = input("Have you set the git tag for the new version? (y/N):")
-if resp.lower() != "y" and resp.lower() != "yes":
+if len(sys.argv) != 2:
+    print(f"Usage:")
+    print(f"  {sys.argv[0]} <version>")
+    print(f"Note: ")
+    print(f"  <version> is only accepted in the format /\\d{{1,}}\\.\\d{{1,}}\\.\\d{{1,}}/")
     exit(1)
 
-# Get git tag of current and previous versions
-version = subprocess.check_output("git describe --tags --abbrev=0", text=True, shell=True).strip()[1:]
-prev_version = subprocess.check_output("git describe --tags --abbrev=0 HEAD^", text=True, shell=True).strip()[1:]
+version = sys.argv[1]
 
-print("Current version:", version)
-print("Previous version:", prev_version)
-
-# Fail if current and previous versions are the same
-if version == prev_version:
-    print("error: Current and previous version are the same")
+# Check if working tree is dirty
+if os.system("git diff --quiet") != 0 or os.system("git diff --staged --quiet") != 0:
+    print("error: Working tree is dirty. Commit or discard all changes before bumping the version")
     exit(1)
 
 # Read changelog
@@ -95,3 +93,36 @@ with open("client/updates.json", "r+") as f:
     f.write("\n")
     f.truncate()
 
+#############################
+
+
+def yesno(prompt: str):
+    resp = input(f"{prompt} [y/N]: ")
+    return resp.lower() == "y" or resp.lower() == "yes"
+
+
+if yesno(f"Do you want to create a bump version commit with the message 'Bump version to v{version}'?"):
+    os.system("git add .")
+    os.system(f"git commit -m 'Bump version to v{version}'")
+else:
+    exit(0)
+
+
+if yesno("Do you want to push the commit?"):
+    # os.system("git push")
+    print("git push")
+else:
+    exit(0)
+
+
+if yesno(f"Do you want to create a git tag 'v{version}'?"):
+    os.system(f"git tag v{version}")
+else:
+    exit(0)
+
+
+if yesno("Do you want to push the tag?"):
+    # os.system("git push --tags")
+    print("git push --tags")
+else:
+    exit(0)
