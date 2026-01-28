@@ -1,41 +1,49 @@
 {
-    "manifest_version": 2,
-    "name": "Klo",
-    "description": "WC - WatchCollectively (or Klo)",
-    "version": "0.1.1",
-    "license": "AGPL-3.0-only",
-    "permissions": [
-        "webRequest",
-        "activeTab",
-        "tabs",
-        "webNavigation",
-        "scripting",
-        "storage"
-    ],
-    "content_scripts": [
-        {
-            "matches": [
-                "*://*/*"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "run_at": "document_end"
-        }
-    ],
-    "background": {
-        "scripts": ["background.js"],
-        "persistent": true,
-        "type": "module"
-    },
-    "sidebar_action": {
-        "default_title": "Klo",
-        "default_panel": "sidebar/sidebar.html"
-    },
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "klo-client@goisser.net",
-            "update_url": "https://git.goisser.net/Benjamin/klo/raw/branch/main/client/updates.json"
-        }
+  "manifest_version": 2,
+  "name": "Klo",
+  "description": "WC - WatchCollectively (or Klo)",
+  "version": "0.1.1",
+  "permissions": [
+    "webRequest",
+    "activeTab",
+    "tabs",
+    "webNavigation",
+    "scripting",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
     }
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true,
+    "type": "module"
+  },
+  "sidebar_action": {
+    "default_title": "Klo",
+    "default_panel": "sidebar/sidebar.html",
+    "default_icon": "icon.svg"
+  },
+  "icons": {
+    "32": "icon.svg",
+    "64": "icon.svg",
+    "128": "icon.svg",
+    "256": "icon.svg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "klo-client@goisser.net",
+      "update_url": "https://git.goisser.net/Benjamin/klo/raw/branch/main/client/updates.json"
+    }
+  }
 }

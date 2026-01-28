@@ -25,7 +25,10 @@ function copy_with_transform(options) {
     name: "copy-with-transform",
     async buildEnd() {
       let input = fs.readFileSync(options.input, "utf8");
-      let output = await options.transform(input);
+      let output = input
+      if (options.transform) {
+        output = await options.transform(input);
+      }
       this.emitFile({
         type: "prebuilt-chunk",
         fileName: options.output,
@@ -68,6 +71,7 @@ export default [
       }),
       typescript(),
       copy_with_transform({ input: "manifest.json", output: "manifest.json", transform: (input) => JSON.stringify(JSON.parse(input)) }),
+      copy_with_transform({ input: "icon.svg", output: "icon.svg" }),
       terser(),
     ],
   },
