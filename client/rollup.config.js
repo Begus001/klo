@@ -7,6 +7,7 @@ import { minify as minifyHtml } from "html-minifier-terser";
 import terser from "@rollup/plugin-terser";
 import { execSync } from "child_process";
 import replace from "@rollup/plugin-replace";
+import html from "@rollup/plugin-html";
 
 const GIT_TAG = execSync("git describe --tags").toString().trim();
 
@@ -98,7 +99,6 @@ export default [
     output: {
       dir: "dist/sidebar",
       format: "esm",
-      compact: true,
     },
     plugins: [
       replace({ __GIT_TAG__: GIT_TAG }),
@@ -122,4 +122,15 @@ export default [
       terser(),
     ]
   },
+  {
+    input: "popup/popup.js",
+    output: {
+      dir: "dist/popup",
+      format: "esm"
+    },
+    plugins: [
+      copy_with_transform({ input: "popup/popup.html", output: "popup.html", transform: (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
+      copy_with_transform({ input: "popup/popup.css", output: "popup.css" })
+    ]
+  }
 ]

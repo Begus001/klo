@@ -29,6 +29,11 @@
     "persistent": true,
     "type": "module"
   },
+  "browser_action": {
+    "default_title": "Klo",
+    "default_popup": "popup/popup.html",
+    "default_icon": "icon.svg"
+  },
   "sidebar_action": {
     "default_title": "Klo",
     "default_panel": "sidebar/sidebar.html",
