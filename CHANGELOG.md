@@ -1,5 +1,13 @@
 # Klo Changelog
 
+## v0.1.3
+
+Client:
+  - Add popup with a button that opens the sidebar
+
+Server:
+  - Release docker image, see [the package repository](https://git.goisser.net/Benjamin/klo/packages)
+
 ## v0.1.2
 
 Client:
