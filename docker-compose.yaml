@@ -14,11 +14,7 @@ services:
 
         WORKDIR /app
 
-        COPY                            \
-          --exclude=server/node_modules \
-          --exclude=client              \
-          --exclude=.git                \
-          . .
+        COPY . .
 
         WORKDIR /app/server
 
