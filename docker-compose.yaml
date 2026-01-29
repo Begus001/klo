@@ -1,0 +1,31 @@
+name: klo
+services:
+  klo-server:
+    container_name: klo-server
+    image: git.goisser.net/benjamin/klo-server:0.1.2
+    ports:
+      - "42070:42070"
+    build:
+      dockerfile_inline: |
+        FROM alpine:3.23
+
+        RUN apk update && apk upgrade
+        RUN apk add nodejs npm
+
+        WORKDIR /app
+
+        COPY                            \
+          --exclude=server/node_modules \
+          --exclude=client              \
+          --exclude=.git                \
+          . .
+
+        WORKDIR /app/server
+
+        RUN npm i
+        RUN npx tsc -p ..
+        RUN npx tsc
+
+        LABEL org.opencontainers.image.source=https://git.goisser.net/Benjamin/klo
+
+        ENTRYPOINT ["/usr/bin/node", "/app/server"]

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import re
-import sys
 import json
 import os
+import re
+import sys
 
 if len(sys.argv) != 2:
     print(f"Usage:")
@@ -91,6 +91,14 @@ with open("client/updates.json", "r+") as f:
     })
     json.dump(obj, f, indent=2)
     f.write("\n")
+    f.truncate()
+
+print("Processing docker-compose.yaml")
+with open("docker-compose.yaml", "r+") as f:
+    content = f.read()
+    f.seek(0)
+    content = re.sub(r'klo-server:\d{1,}\.\d{1,}\.\d{1,}', rf'klo-server:{version}', content)
+    f.write(content)
     f.truncate()
 
 #############################

@@ -17,6 +17,17 @@ jobs:
         with:
           upload-artifacts: true
 
+  release-server:
+    runs-on: ubuntu-24
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: build and push
+        run: |
+          set -x
+          echo  ${{ secrets.RELEASE_TOKEN }} | docker login git.goisser.net -u benjamin --password-stdin
+          docker compose build --push
+
   release:
     runs-on: node-24
     needs: build
