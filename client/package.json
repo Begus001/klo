@@ -1,7 +1,7 @@
 {
   "name": "klo",
   "license": "AGPL-3.0-only",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Benjamin Goisser <benjamin.goisser.bg@gmail.com>",
   "homepage": "https://git.goisser.net/Benjamin/klo",
   "type": "module",
