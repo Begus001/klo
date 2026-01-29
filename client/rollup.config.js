@@ -7,7 +7,6 @@ import { minify as minifyHtml } from "html-minifier-terser";
 import terser from "@rollup/plugin-terser";
 import { execSync } from "child_process";
 import replace from "@rollup/plugin-replace";
-import html from "@rollup/plugin-html";
 
 const GIT_TAG = execSync("git describe --tags").toString().trim();
 
