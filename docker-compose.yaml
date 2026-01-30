@@ -6,6 +6,8 @@ services:
     ports:
       - "42070:42070"
     build:
+      tags:
+        - git.goisser.net/benjamin/klo-server:latest
       dockerfile_inline: |
         FROM alpine:3.23
 
