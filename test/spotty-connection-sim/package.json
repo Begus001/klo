@@ -1,0 +1,9 @@
+{
+  "name": "spotty-connection-sim",
+  "type": "module",
+  "main": "spotty-connection-sim.js",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ws": "^8.19.0"
+  }
+}
