@@ -20,14 +20,18 @@ function sendToAllClients(sender: WebSocket, msg: Message) {
     }
 }
 
+let PORT = 42070;
+
+if (process.argv.length > 2 && !isNaN(Number(process.argv[2]))) {
+    PORT = Number(process.argv[2]);
+}
+
 let videoState = new VideoState;
 
 let clients: Array<Client> = [];
 
 const app = express();
 const server = createServer(app);
-
-const PORT = 42070;
 
 const wss = new WebSocketServer({ server });
 wss.on("connection", (ws: WebSocket, req: Request) => {
