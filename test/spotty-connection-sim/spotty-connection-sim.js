@@ -5,8 +5,8 @@ import { WebSocketServer, WebSocket } from "ws";
 const LISTEN_PORT = 42080; 
 const TARGET_PORT = 42070; 
 
-const DELAY_MS = 200;
-const LOSS_PROB = 0.05;
+const DELAY_MS = 100;
+const LOSS_PROB = 0.00;
 
 const app = express();
 const server = createServer(app);
@@ -46,6 +46,33 @@ wss.on("connection", (clientWs, req) => {
       }
     }, DELAY_MS);
   });
+
+  serverWs._autoPong = false;
+
+  clientWs.on("pong", () => {
+    if (Math.random() < LOSS_PROB) {
+      console.log("Dropped client->server pong");
+      return;
+    }
+    setTimeout(() => {
+      if (serverWs.readyState === WebSocket.OPEN) {
+        serverWs.pong();
+      }
+    }, DELAY_MS);
+  })
+
+  serverWs.on("ping", () => {
+    if (Math.random() < LOSS_PROB) {
+      console.log("Dropped server->client ping");
+      return;
+    }
+    setTimeout(() => {
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.ping();
+      }
+    }, DELAY_MS);
+  });
+
 
   clientWs.on("close", () => {
     serverWs.close();

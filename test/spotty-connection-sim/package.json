@@ -4,6 +4,7 @@
   "main": "spotty-connection-sim.js",
   "dependencies": {
     "express": "^5.2.1",
+    "nodemon": "^3.1.11",
     "ws": "^8.19.0"
   }
 }
