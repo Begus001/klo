@@ -11,12 +11,22 @@
   let hidden = $state(false);
   let connectionState = $state(ConnectionState.DISCONNECTED);
 
-  onMount(() => {
-    browser.runtime.onMessage.addListener((msg: Message) => {
+  onMount(async () => {
+    const listener = (msg: Message) => {
       if (msg.type === MessageType.CONNECTION_CHANGED) {
         connectionState = msg.data;
       }
-    });
+    };
+    browser.runtime.onMessage.addListener(listener);
+
+    let lastAddress = await getAddress();
+    if (lastAddress) {
+      serverInputElement!.value = lastAddress;
+    }
+
+    return () => {
+      browser.runtime.onMessage.removeListener(listener);
+    };
   });
 
   export async function toggleVisibility() {
