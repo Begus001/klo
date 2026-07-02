@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Settings from "./Settings.svelte";
   import Footer from "./Footer.svelte";
+  import TabSelector from "./TabSelector.svelte";
 
   const GIT_TAG = "__GIT_TAG__";
   let settingsComponent: Settings;
@@ -14,6 +15,7 @@
 
 <main class="container-fluid vh-100 d-flex flex-column p-3">
   <Settings bind:this={settingsComponent} />
+  <TabSelector />
 </main>
 
 <Footer version={GIT_TAG} bind:this={footerComponent} />

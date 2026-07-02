@@ -1,10 +1,22 @@
-export type Message = ConnectMessage | ConnectionChangedMessage | PlaybackMessage | SeekMessage;
+export type Message =
+    ConnectMessage           |
+    ConnectionChangedMessage |
+    PlaybackMessage          |
+    SeekMessage              |
+    SelectTabMessage         |
+    DeselectTabMessage       |
+    TabSelectedMessage       |
+    GetSelectedTabMessage;
 
 export enum MessageType {
     CONNECT,
     CONNECTION_CHANGED,
     PLAYBACK,
     SEEK,
+    SELECT_TAB,
+    DESELECT_TAB,
+    TAB_SELECTED,
+    GET_SELECTED_TAB,
 }
 
 export interface ConnectMessage {
@@ -31,4 +43,24 @@ export interface PlaybackMessage {
 export interface SeekMessage {
     type: MessageType.SEEK;
     data: number;
+}
+
+export interface SelectTabMessage {
+    type: MessageType.SELECT_TAB;
+    data: undefined;
+}
+
+export interface DeselectTabMessage {
+    type: MessageType.DESELECT_TAB;
+    data: undefined;
+}
+
+export interface TabSelectedMessage {
+  type: MessageType.TAB_SELECTED;
+  data?: browser.tabs.Tab;
+}
+
+export interface GetSelectedTabMessage {
+    type: MessageType.GET_SELECTED_TAB;
+    data: undefined;
 }
