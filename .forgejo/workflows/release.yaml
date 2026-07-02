@@ -4,6 +4,18 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      releaseTag:
+        description: "Release tag, in the format /v\\d+.\\d+.\\d+/, e.g. v1.2.3"
+        required: true
+        type: string
+
+      dontSign:
+        description: "Skip AMO signing"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -30,7 +42,11 @@ jobs:
 
   release:
     runs-on: node-24
-    needs: build
+    needs: 
+      - build
+      - release-server
+    env:
+      RELEASE_TAG: ${{ inputs.releaseTag || forgejo.ref_name }}
     steps:
       - uses: forgejo/download-artifact@v4
         with:
@@ -46,7 +62,13 @@ jobs:
         with:
           path: ${{ forgejo.workspace }}/repo
 
+      - name: prepare release dir
+        run: |
+          mkdir -p release
+          mv artifacts/klo-server.zip release/klo-server-${{ env.RELEASE_TAG }}.zip
+
       - name: sign extension
+        if: ${{ !inputs.dontSign }}
         run: |
           set -x
 
@@ -70,10 +92,7 @@ jobs:
             --api-key "${{ secrets.MOZ_API_KEY }}"                    \
             --api-secret "${{ secrets.MOZ_API_SECRET }}"
 
-          mkdir release
-
-          mv *.xpi "release/klo-client-${{ forgejo.ref_name }}.xpi"
-          mv artifacts/klo-server.zip release/klo-server-${{ forgejo.ref_name }}.zip
+          mv *.xpi "release/klo-client-${{ env.RELEASE_TAG }}.xpi"
 
           ls -lAh
           ls -lAh release
@@ -81,14 +100,14 @@ jobs:
           curl                                                                                                                                 \
             -X PUT                                                                                                                             \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}"                                                                             \
-            -v https://git.goisser.net/api/packages/Benjamin/generic/klo-client/${{ forgejo.ref_name }}/klo-client-${{ forgejo.ref_name }}.xpi \
-            -T release/klo-client-${{ forgejo.ref_name }}.xpi
+            -v https://git.goisser.net/api/packages/Benjamin/generic/klo-client/${{ env.RELEASE_TAG }}/klo-client-${{ env.RELEASE_TAG }}.xpi \
+            -T release/klo-client-${{ env.RELEASE_TAG }}.xpi
 
       - name: parse changelog
         id: parse_changelog
         run: |
           set -x
-          changelog=`perl -0777 -ne 'if (/(?<=## ${{ forgejo.ref_name }}\n\n)[\S\s]+?(?=\n\n##|\z)/m) { print "$&\n"; }' repo/CHANGELOG.md`
+          changelog=`perl -0777 -ne 'if (/(?<=## ${{ env.RELEASE_TAG }}\n\n)[\S\s]+?(?=\n\n##|\z)/m) { print "$&\n"; }' repo/CHANGELOG.md`
           echo "$changelog"
           echo "changelog<<EOF" >> $FORGEJO_OUTPUT
           echo "$changelog" >> $FORGEJO_OUTPUT
@@ -100,7 +119,7 @@ jobs:
           url: https://git.goisser.net
           repo: Benjamin/klo
           token: ${{ secrets.RELEASE_TOKEN }}
-          tag: ${{ forgejo.ref_name }}
+          tag: ${{ env.RELEASE_TAG }}
           release-dir: release/
           release-notes: "${{ steps.parse_changelog.outputs.changelog }}"
           prerelease: true

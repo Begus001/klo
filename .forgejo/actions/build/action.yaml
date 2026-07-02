@@ -46,6 +46,7 @@ runs:
       with:
         name: klo-client
         path: client/klo-client.zip
+        overwrite: true
 
     - name: upload server
       if: inputs.upload-artifacts == 'true'
@@ -53,4 +54,5 @@ runs:
       with:
         name: klo-server
         path: server/klo-server.zip
+        overwrite: true
 
