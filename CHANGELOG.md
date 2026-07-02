@@ -1,5 +1,13 @@
 # Klo Changelog
 
+## v0.1.4
+
+Client:
+  - Add tab selection
+
+Server:
+  - Add latency measurement
+
 ## v0.1.3
 
 Client:
