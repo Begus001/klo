@@ -64,7 +64,7 @@
 
   async function loadAddress() {
     let tmp = await browser.storage.local.get("last-address");
-    if (!tmp || !serverInputElement) {
+    if (!tmp || !serverInputElement || !tmp["last-address"]) {
       return;
     }
     serverInputElement.value = tmp["last-address"];
@@ -99,6 +99,7 @@
               onkeydown={(e) => {
                 if (e.key === "Enter") toggleConnect();
               }}
+              onchange={() => saveAddress()}
             />
 
             {#if connectionState === ConnectionState.DISCONNECTED}
