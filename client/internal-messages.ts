@@ -7,7 +7,8 @@ export type Message =
     DeselectTabMessage       |
     TabSelectedMessage       |
     TabChangedMessage        |
-    TabInfoRequestMessage;
+    TabInfoRequestMessage    |
+RegrabVideoElementMessage;
 
 export enum MessageType {
     CONNECT,
@@ -19,6 +20,7 @@ export enum MessageType {
     TAB_SELECTED,
     TAB_CHANGED,
     TAB_INFO_REQ,
+    REGRAB_VIDEO_ELEMENT,
 }
 
 export interface ConnectMessage {
@@ -72,4 +74,8 @@ export interface TabChangedMessage {
 
 export interface TabInfoRequestMessage {
     type: MessageType.TAB_INFO_REQ;
+}
+
+export interface RegrabVideoElementMessage {
+    type: MessageType.REGRAB_VIDEO_ELEMENT;
 }

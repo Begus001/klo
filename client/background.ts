@@ -82,10 +82,13 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 
     console.debug("tab update status:", changeInfo.status);
-    browser.runtime.sendMessage({
+    const msg: Message = {
         type: MessageType.TAB_CHANGED,
         data: { changeInfo: changeInfo, tab: tab },
-    } as Message)
+    };
+
+    browser.runtime.sendMessage(msg);
+    browser.tabs.sendMessage(targetTab.id, msg);
 });
 
 browser.runtime.onMessage.addListener(async (msg: Message) => {
@@ -132,6 +135,12 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             type: MessageType.TAB_SELECTED,
             data: undefined,
         } as Message);
+    }
+    else if (msg.type === MessageType.REGRAB_VIDEO_ELEMENT) {
+        if (!targetTab || !targetTab.id) {
+            return;
+        }
+        browser.tabs.sendMessage(targetTab.id, msg);
     }
 });
 

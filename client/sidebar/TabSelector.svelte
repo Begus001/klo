@@ -70,6 +70,12 @@
     });
   }
 
+  async function regrabVideoElement() {
+    browser.runtime.sendMessage({
+      type: MessageType.REGRAB_VIDEO_ELEMENT
+    } as Message);
+  }
+
   function saveHiddenState() {
     browser.storage.local.set({"tab-section-hidden": hidden});
   }
@@ -108,11 +114,9 @@
         {#if selectedTab}
           <div class="tab-info">
             <div class="tab-info-main">
-              {#key selectedTab.title}
-                <div class="tab-title" title={selectedTab.title}>
-                  {selectedTab.title ?? "Untitled tab"}
-                </div>
-              {/key}
+              <div class="tab-title" title={selectedTab.title}>
+                {selectedTab.title ?? "Untitled tab"}
+              </div>
 
               <div class="tab-meta">
                 tab #{selectedTab.id}
@@ -127,6 +131,12 @@
               onclick={() => switchToCurrentTab()}
             >
               Switch to
+            </button>
+            <button
+              class="btn btn-sm btn-outline-primary switch-button"
+              onclick={() => regrabVideoElement()}
+            >
+              Regrab video
             </button>
           </div>
         {/if}
