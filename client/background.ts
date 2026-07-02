@@ -62,6 +62,32 @@ async function refreshTab() {
     targetTab = await browser.tabs.get(targetTab.id);
 }
 
+async function selectTab(): Promise<browser.tabs.Tab> {
+    return new Promise(async (res, rej) => {
+        const win = await browser.windows.getCurrent();
+        const tabs = await browser.tabs.query({ active: true, windowId: win.id });
+
+        if (tabs.length < 1 || !tabs[0].id) {
+            console.error("no tabs found");
+            rej();
+        }
+
+        res(tabs[0]);
+    });
+}
+
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (!targetTab || !targetTab.id || targetTab.id != tabId) {
+        return;
+    }
+
+    console.debug("tab update status:", changeInfo.status);
+    browser.runtime.sendMessage({
+        type: MessageType.TAB_CHANGED,
+        data: { changeInfo: changeInfo, tab: tab },
+    } as Message)
+});
+
 browser.runtime.onMessage.addListener(async (msg: Message) => {
     if (msg.type === MessageType.CONNECT) {
         ws.close();
@@ -87,28 +113,16 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
     }
     else if (msg.type === MessageType.SELECT_TAB) {
         console.debug("background tab select");
-
-        const win = await browser.windows.getCurrent();
-        // console.debug(`current window is ${win.id}`);
-        browser.tabs.query({ active: true, windowId: win.id }).then(tabs => {
-            if (tabs.length < 1) {
-                console.error("no tabs found");
-                return;
-            }
-            targetTab = tabs[0];
-            console.debug(`selected tab: id=${targetTab.id}, title=${targetTab.title}`);
-
+        selectTab().then(tab => {
             browser.runtime.sendMessage({
                 type: MessageType.TAB_SELECTED,
-                data: targetTab,
+                data: tab,
             } as Message);
 
-            if (!targetTab.id) {
-                return;
-            }
+            targetTab = tab;
 
             // TODO: instead of reloading, load the page set on the server
-            browser.tabs.reload(targetTab.id);
+            // browser.tabs.reload(tab.id!);
         });
     }
     else if (msg.type === MessageType.DESELECT_TAB) {
@@ -118,14 +132,6 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             type: MessageType.TAB_SELECTED,
             data: undefined,
         } as Message);
-    }
-    else if (msg.type === MessageType.GET_SELECTED_TAB) {
-        refreshTab().then(() => {
-            browser.runtime.sendMessage({
-                type: MessageType.TAB_SELECTED,
-                data: targetTab,
-            } as Message);
-        });
     }
 });
 

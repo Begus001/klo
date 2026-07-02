@@ -14,30 +14,22 @@
       if (msg.type === MessageType.TAB_SELECTED) {
         selectedTab = msg.data;
       }
+      else if (msg.type === MessageType.TAB_CHANGED) {
+        if (msg.data.changeInfo.title) {
+          selectedTab = msg.data.tab;
+        }
+      }
     };
-
     browser.runtime.onMessage.addListener(listener);
 
     browser.runtime.sendMessage({
-      type: MessageType.GET_SELECTED_TAB,
+      type: MessageType.TAB_INFO_REQ,
       data: undefined,
     } as Message);
-
-    const tabInfoInterval = setInterval(() => {
-      if (!selectedTab) {
-        return;
-      }
-      browser.runtime.sendMessage({
-        type: MessageType.GET_SELECTED_TAB,
-        data: undefined,
-      } as Message);
-      console.debug("title:", selectedTab.title!);
-    }, 1000);
 
     loadHiddenState();
 
     return () => {
-      clearInterval(tabInfoInterval);
       browser.runtime.onMessage.removeListener(listener);
     };
   });

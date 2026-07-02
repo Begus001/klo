@@ -6,7 +6,8 @@ export type Message =
     SelectTabMessage         |
     DeselectTabMessage       |
     TabSelectedMessage       |
-    GetSelectedTabMessage;
+    TabChangedMessage        |
+    TabInfoRequestMessage;
 
 export enum MessageType {
     CONNECT,
@@ -16,7 +17,8 @@ export enum MessageType {
     SELECT_TAB,
     DESELECT_TAB,
     TAB_SELECTED,
-    GET_SELECTED_TAB,
+    TAB_CHANGED,
+    TAB_INFO_REQ,
 }
 
 export interface ConnectMessage {
@@ -60,7 +62,14 @@ export interface TabSelectedMessage {
   data?: browser.tabs.Tab;
 }
 
-export interface GetSelectedTabMessage {
-    type: MessageType.GET_SELECTED_TAB;
-    data: undefined;
+export interface TabChangedMessage {
+    type: MessageType.TAB_CHANGED;
+    data: {
+        changeInfo: browser.tabs._OnUpdatedChangeInfo;
+        tab: browser.tabs.Tab;
+    };
+}
+
+export interface TabInfoRequestMessage {
+    type: MessageType.TAB_INFO_REQ;
 }
