@@ -55,6 +55,13 @@ const onDisconnected = () => {
     } as Message);
 };
 
+async function refreshTab() {
+    if (!targetTab || !targetTab.id) {
+        return;
+    }
+    targetTab = await browser.tabs.get(targetTab.id);
+}
+
 browser.runtime.onMessage.addListener(async (msg: Message) => {
     if (msg.type === MessageType.CONNECT) {
         ws.close();
@@ -82,7 +89,7 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         console.debug("background tab select");
 
         const win = await browser.windows.getCurrent();
-        console.debug(`current window is ${win.id}`);
+        // console.debug(`current window is ${win.id}`);
         browser.tabs.query({ active: true, windowId: win.id }).then(tabs => {
             if (tabs.length < 1) {
                 console.error("no tabs found");
@@ -105,19 +112,20 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         });
     }
     else if (msg.type === MessageType.DESELECT_TAB) {
+        console.debug("background tab deselect");
         targetTab = undefined;
         browser.runtime.sendMessage({
             type: MessageType.TAB_SELECTED,
             data: undefined,
         } as Message);
-        console.debug("background tab deselect");
     }
     else if (msg.type === MessageType.GET_SELECTED_TAB) {
-        console.debug("background get selected tab", targetTab)
-        browser.runtime.sendMessage({
-            type: MessageType.TAB_SELECTED,
-            data: targetTab,
-        } as Message);
+        refreshTab().then(() => {
+            browser.runtime.sendMessage({
+                type: MessageType.TAB_SELECTED,
+                data: targetTab,
+            } as Message);
+        });
     }
 });
 

@@ -23,7 +23,19 @@
       data: undefined,
     } as Message);
 
+    const tabInfoInterval = setInterval(() => {
+      if (!selectedTab) {
+        return;
+      }
+      browser.runtime.sendMessage({
+        type: MessageType.GET_SELECTED_TAB,
+        data: undefined,
+      } as Message);
+      console.debug("title:", selectedTab.title!);
+    }, 1000);
+
     return () => {
+      clearInterval(tabInfoInterval);
       browser.runtime.onMessage.removeListener(listener);
     };
   });
@@ -84,9 +96,11 @@
         {#if selectedTab}
           <div class="tab-info">
             <div class="tab-info-main">
-              <div class="tab-title" title={selectedTab.title}>
-                {selectedTab.title ?? "Untitled tab"}
-              </div>
+              {#key selectedTab.title}
+                <div class="tab-title" title={selectedTab.title}>
+                  {selectedTab.title ?? "Untitled tab"}
+                </div>
+              {/key}
 
               <div class="tab-meta">
                 tab #{selectedTab.id}
