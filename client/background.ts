@@ -5,6 +5,7 @@ import { type Message as ExternalMessage, MessageType as ExternalMessageType } f
 console.log("background script running")
 
 let targetTab: browser.tabs.Tab | undefined;
+let selfUpdate = false;
 
 const onMsg = (_ws: WebSocket, strmsg: string) => {
     console.debug(strmsg);
@@ -34,6 +35,19 @@ const onMsg = (_ws: WebSocket, strmsg: string) => {
             data: msg.data,
         } as Message);
     }
+    else if (msg.type === ExternalMessageType.URL_CHANGE) {
+        console.debug("got url msg");
+        if (!targetTab || !targetTab.id) {
+            return;
+        }
+        if (msg.data === targetTab.url) {
+            console.debug("received url change msg with same url as ours");
+            return;
+        }
+        browser.tabs.update(targetTab.id, {
+            url: msg.data
+        });
+    }
 };
 
 const onConnecting = () => {
@@ -55,13 +69,6 @@ const onDisconnected = () => {
     } as Message);
 };
 
-async function refreshTab() {
-    if (!targetTab || !targetTab.id) {
-        return;
-    }
-    targetTab = await browser.tabs.get(targetTab.id);
-}
-
 async function selectTab(): Promise<browser.tabs.Tab> {
     return new Promise(async (res, rej) => {
         const win = await browser.windows.getCurrent();
@@ -77,7 +84,13 @@ async function selectTab(): Promise<browser.tabs.Tab> {
 }
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (!targetTab || !targetTab.id || targetTab.id != tabId) {
+    if (!targetTab || !targetTab.id || targetTab.id != tabId || !tab.id) {
+        return;
+    }
+
+    if (selfUpdate) {
+        console.debug("selfUpdate");
+        selfUpdate = false;
         return;
     }
 
@@ -87,8 +100,18 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         data: { changeInfo: changeInfo, tab: tab },
     };
 
+    if (changeInfo.url && changeInfo.url !== targetTab.url) {
+        console.debug("url changed on target tab:", changeInfo.url);
+        ws.send(JSON.stringify({
+            type: ExternalMessageType.URL_CHANGE,
+            data: changeInfo.url
+        } as ExternalMessage));
+    }
+
+    targetTab = tab;
+
     browser.runtime.sendMessage(msg);
-    browser.tabs.sendMessage(targetTab.id, msg);
+    browser.tabs.sendMessage(targetTab.id!, msg);
 });
 
 browser.runtime.onMessage.addListener(async (msg: Message) => {

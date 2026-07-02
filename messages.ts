@@ -1,8 +1,12 @@
-export type Message = PlaybackMessage | SeekMessage;
+export type Message =
+    PlaybackMessage |
+    SeekMessage     |
+    UrlChangeMessage;
 
 export enum MessageType {
     PLAYBACK,
     SEEK,
+    URL_CHANGE,
 }
 
 export interface PlaybackMessage {
@@ -13,6 +17,11 @@ export interface PlaybackMessage {
 export interface SeekMessage {
     type: MessageType.SEEK;
     data: number;
+}
+
+export interface UrlChangeMessage {
+    type: MessageType.URL_CHANGE;
+    data: string;
 }
 
 export interface VideoState {

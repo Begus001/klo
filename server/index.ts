@@ -6,6 +6,7 @@ import { type Message, MessageType } from "../messages.js";
 class VideoState {
     time: number = 0;
     playbackState: boolean = false;
+    url: string = "";
 }
 
 class Client {
@@ -39,7 +40,7 @@ class Client {
             this.pingInFlight = false;
             const pongReceivedAt = Date.now();
             this.latency = (pongReceivedAt - this.lastPingSent) / 2;
-            console.log(`client ${this.address} latency: ${this.latency}ms`);
+            // console.log(`client ${this.address} latency: ${this.latency}ms`);
         });
     }
 
@@ -117,6 +118,17 @@ wss.on("connection", (ws: WebSocket, req: Request) => {
             console.log(`Message from ${req.socket.remoteAddress}:`);
             console.log(`  type: SEEK`);
             console.log(`  data:`, msg.data);
+            sendToAllClients(ws, msg);
+        }
+        else if (msg.type === MessageType.URL_CHANGE) {
+            console.log(`Message from ${req.socket.remoteAddress}:`);
+            console.log(`  type: URL_CHANGE`);
+            console.log(`  data:`, msg.data);
+            if (msg.data === videoState.url) {
+                console.log("we are already at that url");
+                return;
+            }
+            videoState.url = msg.data;
             sendToAllClients(ws, msg);
         }
     });
