@@ -15,8 +15,8 @@ if len(sys.argv) != 2:
 version = sys.argv[1]
 
 # Check if working tree is dirty
-if os.system("git diff --quiet") != 0 or os.system("git diff --staged --quiet") != 0:
-    print("error: Working tree is dirty. Commit or discard all changes before bumping the version")
+if os.system("git diff --quiet") != 0:
+    print("error: Working tree is dirty. Commit, stage or discard all changes before bumping the version")
     exit(1)
 
 # Read changelog
