@@ -8,7 +8,7 @@
   import { slide } from "svelte/transition";
 
   let serverInputElement: HTMLInputElement | undefined = $state();
-  let hidden = $state(false);
+  let hidden = $state(true);
   let connectionState = $state(ConnectionState.DISCONNECTED);
 
   onMount(async () => {
@@ -19,10 +19,8 @@
     };
     browser.runtime.onMessage.addListener(listener);
 
-    let lastAddress = await getAddress();
-    if (lastAddress) {
-      serverInputElement!.value = lastAddress;
-    }
+    loadHiddenState();
+    loadAddress();
 
     return () => {
       browser.runtime.onMessage.removeListener(listener);
@@ -31,12 +29,14 @@
 
   export async function toggleVisibility() {
     hidden = !hidden;
-    if (!hidden) {
-      let lastAddress = await getAddress();
-      if (lastAddress) {
-        serverInputElement!.value = lastAddress;
-      }
-    }
+    loadAddress();
+    saveHiddenState();
+  }
+
+  function setHidden(isHidden: bool) {
+    hidden = isHidden;
+    loadAddress();
+    saveHiddenState();
   }
 
   function toggleConnect() {
@@ -56,12 +56,30 @@
   }
 
   function saveAddress() {
-    browser.storage.local.set({"last-address": serverInputElement!.value});
+    if (!serverInputElement) {
+      return;
+    }
+    browser.storage.local.set({"last-address": serverInputElement.value});
   }
 
-  async function getAddress() {
+  async function loadAddress() {
     let tmp = await browser.storage.local.get("last-address");
-    return tmp["last-address"];
+    if (!tmp || !serverInputElement) {
+      return;
+    }
+    serverInputElement.value = tmp["last-address"];
+  }
+
+  function saveHiddenState() {
+    browser.storage.local.set({"settings-section-hidden": hidden});
+  }
+
+  async function loadHiddenState() {
+    let tmp = await browser.storage.local.get("settings-section-hidden");
+    if (!tmp) {
+      return;
+    }
+    setHidden(tmp["settings-section-hidden"]);
   }
 </script>
 

@@ -6,7 +6,7 @@
     type Message,
   } from "../internal-messages";
 
-  let hidden = $state(false);
+  let hidden = $state(true);
   let selectedTab = $state<browser.tabs.Tab | undefined>();
 
   onMount(() => {
@@ -34,14 +34,22 @@
       console.debug("title:", selectedTab.title!);
     }, 1000);
 
+    loadHiddenState();
+
     return () => {
       clearInterval(tabInfoInterval);
       browser.runtime.onMessage.removeListener(listener);
     };
   });
 
+  function setHidden(isHidden: bool) {
+    hidden = isHidden;
+    saveHiddenState();
+  }
+
   function toggleVisibility() {
     hidden = !hidden;
+    saveHiddenState();
   }
 
   function toggleTabLock() {
@@ -69,6 +77,18 @@
       focused: true,
     });
   }
+
+  function saveHiddenState() {
+    browser.storage.local.set({"tab-section-hidden": hidden});
+  }
+
+  async function loadHiddenState() {
+    let tmp = await browser.storage.local.get("tab-section-hidden");
+    if (!tmp) {
+      return;
+    }
+    setHidden(tmp["tab-section-hidden"]);
+  }
 </script>
 
 <div class="container-fluid p-0 m-0 mt-3 d-flex flex-column">
@@ -77,19 +97,19 @@
       <div class="tab-selector-card mb-2">
         <div class="tab-selector-header">
           <div>
-            <div class="tab-selector-title">Tab</div>
+            <h5  class="card-title">Tab</h5>
             <div class="tab-selector-subtitle">
               {selectedTab ? "Tab selected" : "No tab selected"}
             </div>
           </div>
 
           <button
-            class="btn btn-sm"
+            class="btn"
             class:btn-primary={!selectedTab}
             class:btn-danger={selectedTab}
             onclick={() => toggleTabLock()}
           >
-            {selectedTab ? "Unlock" : "Select tab"}
+            {selectedTab ? "Release tab" : "Select tab"}
           </button>
         </div>
 
