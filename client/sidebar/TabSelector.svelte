@@ -5,8 +5,8 @@
     MessageType,
     type Message,
   } from "../internal-messages";
+  import CollapsibleSection from "./CollapsibleSection.svelte";
 
-  let hidden = $state(true);
   let selectedTab = $state<browser.tabs.Tab | undefined>();
 
   onMount(() => {
@@ -27,22 +27,10 @@
       data: undefined,
     } as Message);
 
-    loadHiddenState();
-
     return () => {
       browser.runtime.onMessage.removeListener(listener);
     };
   });
-
-  function setHidden(isHidden: bool) {
-    hidden = isHidden;
-    saveHiddenState();
-  }
-
-  function toggleVisibility() {
-    hidden = !hidden;
-    saveHiddenState();
-  }
 
   function toggleTabLock() {
     if (selectedTab) {
@@ -75,84 +63,60 @@
       type: MessageType.REGRAB_VIDEO_ELEMENT
     } as Message);
   }
-
-  function saveHiddenState() {
-    browser.storage.local.set({"tab-section-hidden": hidden});
-  }
-
-  async function loadHiddenState() {
-    let tmp = await browser.storage.local.get("tab-section-hidden");
-    if (!tmp) {
-      return;
-    }
-    setHidden(tmp["tab-section-hidden"]);
-  }
 </script>
 
-<div class="container-fluid p-0 m-0 mt-3 d-flex flex-column">
-  {#if !hidden}
-    <div transition:slide={{ duration: 200 }}>
-      <div class="tab-selector-card mb-2">
-        <div class="tab-selector-header">
-          <div>
-            <h5  class="card-title">Tab</h5>
-            <div class="tab-selector-subtitle">
-              {selectedTab ? "Tab selected" : "No tab selected"}
-            </div>
+<CollapsibleSection name="Tab">
+  <div class="tab-selector-card mb-2">
+    <div class="tab-selector-header">
+      <div>
+        <h5  class="card-title">Tab</h5>
+        <div class="tab-selector-subtitle">
+          {selectedTab ? "Tab selected" : "No tab selected"}
+        </div>
+      </div>
+
+      <button
+        class="btn"
+        class:btn-primary={!selectedTab}
+        class:btn-danger={selectedTab}
+        onclick={() => toggleTabLock()}
+      >
+        {selectedTab ? "Release tab" : "Select tab"}
+      </button>
+    </div>
+
+    {#if selectedTab}
+      <div class="tab-info">
+        <div class="tab-info-main">
+          <div class="tab-title" title={selectedTab.title}>
+            {selectedTab.title ?? "Untitled tab"}
           </div>
 
-          <button
-            class="btn"
-            class:btn-primary={!selectedTab}
-            class:btn-danger={selectedTab}
-            onclick={() => toggleTabLock()}
-          >
-            {selectedTab ? "Release tab" : "Select tab"}
-          </button>
+          <div class="tab-meta">
+            tab #{selectedTab.id}
+            {#if selectedTab.windowId != null}
+              · window #{selectedTab.windowId}
+            {/if}
+          </div>
         </div>
 
-        {#if selectedTab}
-          <div class="tab-info">
-            <div class="tab-info-main">
-              <div class="tab-title" title={selectedTab.title}>
-                {selectedTab.title ?? "Untitled tab"}
-              </div>
-
-              <div class="tab-meta">
-                tab #{selectedTab.id}
-                {#if selectedTab.windowId != null}
-                  · window #{selectedTab.windowId}
-                {/if}
-              </div>
-            </div>
-
-            <button
-              class="btn btn-sm btn-outline-primary switch-button"
-              onclick={() => switchToCurrentTab()}
-            >
-              Switch to
-            </button>
-            <button
-              class="btn btn-sm btn-outline-primary switch-button"
-              onclick={() => regrabVideoElement()}
-            >
-              Regrab video
-            </button>
-          </div>
-        {/if}
+        <button
+          class="btn btn-sm btn-outline-primary switch-button"
+          onclick={() => switchToCurrentTab()}
+        >
+          Switch to
+        </button>
+        <button
+          class="btn btn-sm btn-outline-primary switch-button"
+          onclick={() => regrabVideoElement()}
+        >
+          Regrab video
+        </button>
       </div>
-    </div>
-  {/if}
+    {/if}
+  </div>
+</CollapsibleSection>
 
-  <button
-    class="btn btn-sm tab-toggle"
-    class:btn-outline-secondary={hidden}
-    class:btn-outline-danger={!hidden}
-    onclick={() => toggleVisibility()}
-  >
-    {hidden ? "Tab" : "Close"}
-  </button>
-</div>
 
 <style>
   .tab-toggle {
