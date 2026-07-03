@@ -1,5 +1,19 @@
 # Klo Changelog
 
+## v0.2.0
+
+Client:
+  - *Improved* side panel UI
+  - Improvements in side panel state saving
+  - Search recursively for video element, including shadow DOM
+  - Manually trigger video element search
+  - Add player controls
+  - Synchronize URL with other clients when it changes
+  - Add force sync video time and tab URL
+
+Server:
+  - Implement URL change messages
+
 ## v0.1.4
 
 Client:
