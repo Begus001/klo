@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Klo",
   "description": "WC - WatchCollectively (or Klo)",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "permissions": [
     "webRequest",
     "activeTab",
