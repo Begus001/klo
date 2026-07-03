@@ -5,6 +5,24 @@ let isProgrammaticSeek = false;
 let isProgrammaticPlay = false;
 let isProgrammaticPause = false;
 
+function querySelectorDeep(selector: string, root: Document | ShadowRoot = document): HTMLVideoElement | null {
+    const direct = root.querySelector(selector) as HTMLVideoElement;
+    if (direct) {
+        return direct;
+    }
+
+    for (const el of root.querySelectorAll("*")) {
+        if (el.shadowRoot) {
+            const found = querySelectorDeep(selector, el.shadowRoot);
+            if (found) {
+                return found;
+            }
+        }
+    }
+
+    return null;
+}
+
 function debug(msg: string) {
     console.debug("Klo:", msg);
 }
@@ -23,7 +41,7 @@ function error(msg: string) {
 
 function seek(time: number) {
     if (targetVideoElement == null) {
-        targetVideoElement = document.querySelector("video");
+        targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
             error("received seek but found no video. there has to be a mismatch of this tab's url and the remote's");
         }
@@ -35,7 +53,7 @@ function seek(time: number) {
 
 function play() {
     if (targetVideoElement == null) {
-        targetVideoElement = document.querySelector("video");
+        targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
             error("received play but found no video. there has to be a mismatch of this tab's url and the remote's");
         }
@@ -47,7 +65,7 @@ function play() {
 
 function pause() {
     if (targetVideoElement == null) {
-        targetVideoElement = document.querySelector("video");
+        targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
             error("received pause but found no video. there has to be a mismatch of this tab's url and the remote's");
         }
@@ -109,7 +127,7 @@ function onPause(e: any) {
 }
 
 function registerEvents() {
-    targetVideoElement = document.querySelector("video");
+    targetVideoElement = querySelectorDeep("video");
     if (!targetVideoElement) {
         debug("no video element on this page");
         return;
