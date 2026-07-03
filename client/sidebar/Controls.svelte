@@ -37,6 +37,18 @@
       data: 10
     } as Message);
   }
+
+  function syncTime() {
+    browser.runtime.sendMessage({
+      type: MessageType.FORCE_SYNC_PLAYBACK,
+    } as Message);
+  }
+
+  function syncUrl() {
+    browser.runtime.sendMessage({
+      type: MessageType.FORCE_SYNC_URL,
+    } as Message);
+  }
 </script>
 
 
@@ -57,8 +69,8 @@
     <div class="card-body p-2">
       <div class="d-flex justify-content-center gap-2">
         <div class="btn-group btn-group-sm">
-          <button class="btn btn-outline-secondary btn-sm">Sync Playback</button>
-          <button class="btn btn-outline-secondary btn-sm">Sync URL</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick={() => syncTime()}>Sync Playback</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick={() => syncUrl()}>Sync URL</button>
           <button class="btn btn-outline-secondary btn-sm" onclick={() => regrabVideoElement()}>Regrab Video Element</button>
         </div>
       </div>

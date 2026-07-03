@@ -124,10 +124,10 @@ wss.on("connection", (ws: WebSocket, req: Request) => {
             console.log(`Message from ${req.socket.remoteAddress}:`);
             console.log(`  type: URL_CHANGE`);
             console.log(`  data:`, msg.data);
-            if (msg.data === videoState.url) {
+            // if (msg.data === videoState.url) {
                 console.log("we are already at that url");
-                return;
-            }
+            //     return;
+            // }
             videoState.url = msg.data;
             sendToAllClients(ws, msg);
         }

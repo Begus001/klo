@@ -126,12 +126,16 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         }
     }
     else if (msg.type === MessageType.PLAYBACK) {
+        if (!targetTab) return;
+        console.log("background got playback from content");
         ws.send(JSON.stringify({
             type: ExternalMessageType.PLAYBACK,
             data: msg.data,
         } as ExternalMessage));
     }
     else if (msg.type === MessageType.SEEK) {
+        if (!targetTab) return;
+        console.log("background got seek from content");
         ws.send(JSON.stringify({
             type: ExternalMessageType.SEEK,
             data: msg.data,
@@ -159,18 +163,26 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             data: undefined,
         } as Message);
     }
-    else if (msg.type === MessageType.REGRAB_VIDEO_ELEMENT) {
-        if (!targetTab || !targetTab.id) {
+    else if (msg.type === MessageType.FORCE_SYNC_URL) {
+        if (!targetTab || !targetTab.url) {
             return;
         }
-        browser.tabs.sendMessage(targetTab.id, msg);
-    }
-    // PLAYER CONTROLS
-    else if (msg.type === MessageType.PLAYER_CONTROL_BACKWARD ||
-             msg.type === MessageType.PLAYER_CONTROL_PLAY     ||
-             msg.type === MessageType.PLAYER_CONTROL_PAUSE    ||
-             msg.type === MessageType.PLAYER_CONTROL_FORWARD) {
 
+        console.debug("background force sync url");
+
+        ws.send(JSON.stringify({
+            type: ExternalMessageType.URL_CHANGE,
+            data: targetTab.url
+        } as ExternalMessage));
+    }
+    else if (
+        msg.type === MessageType.REGRAB_VIDEO_ELEMENT    ||
+        msg.type === MessageType.PLAYER_CONTROL_BACKWARD ||
+        msg.type === MessageType.PLAYER_CONTROL_PLAY     ||
+        msg.type === MessageType.PLAYER_CONTROL_PAUSE    ||
+        msg.type === MessageType.PLAYER_CONTROL_FORWARD  ||
+        msg.type === MessageType.FORCE_SYNC_PLAYBACK
+    ) {
         if (!targetTab || !targetTab.id) {
             return;
         }

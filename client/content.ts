@@ -39,7 +39,7 @@ function error(msg: string) {
     console.error("Klo:", msg);
 }
 
-function seek(time: number, setProgPause = true) {
+function seek(time: number, setProgSeek = true) {
     if (targetVideoElement == null) {
         targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
@@ -47,13 +47,13 @@ function seek(time: number, setProgPause = true) {
         }
     }
     debug("program seek");
-    if (setProgPause) {
-        isProgrammaticPause = true;
+    if (setProgSeek) {
+        isProgrammaticSeek = true;
     }
     targetVideoElement!.currentTime = time;
 }
 
-function play(setProgPause = true) {
+function play(setProgPlay = true) {
     if (targetVideoElement == null) {
         targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
@@ -61,8 +61,8 @@ function play(setProgPause = true) {
         }
     }
     debug("program play");
-    if (setProgPause) {
-        isProgrammaticPause = true;
+    if (setProgPlay) {
+        isProgrammaticPlay = true;
     }
     targetVideoElement!.play();
 }
@@ -179,19 +179,25 @@ function registerEvents() {
             if (targetVideoElement == null) {
                 return;
             }
-            seek(targetVideoElement.currentTime - msg.data);
+            seek(targetVideoElement.currentTime - msg.data, false);
         }
         else if (msg.type === MessageType.PLAYER_CONTROL_PLAY) {
-            play();
+            play(false);
         }
         else if (msg.type === MessageType.PLAYER_CONTROL_PAUSE) {
-            pause();
+            pause(false);
         }
         else if (msg.type === MessageType.PLAYER_CONTROL_FORWARD) {
             if (targetVideoElement == null) {
                 return;
             }
-            seek(targetVideoElement.currentTime + msg.data);
+            seek(targetVideoElement.currentTime + msg.data, false);
+        }
+        else if (msg.type === MessageType.FORCE_SYNC_PLAYBACK) {
+            if (targetVideoElement == null) {
+                return;
+            }
+            seek(targetVideoElement.currentTime, false);
         }
     });
 })()
