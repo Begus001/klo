@@ -165,6 +165,18 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         }
         browser.tabs.sendMessage(targetTab.id, msg);
     }
+    // PLAYER CONTROLS
+    else if (msg.type === MessageType.PLAYER_CONTROL_BACKWARD ||
+             msg.type === MessageType.PLAYER_CONTROL_PLAY     ||
+             msg.type === MessageType.PLAYER_CONTROL_PAUSE    ||
+             msg.type === MessageType.PLAYER_CONTROL_FORWARD) {
+
+        if (!targetTab || !targetTab.id) {
+            return;
+        }
+
+        browser.tabs.sendMessage(targetTab.id, msg);
+    }
 });
 
 let ws = new ReconWebSocket(onMsg, onConnecting, onConnected, onDisconnected);

@@ -1,14 +1,18 @@
 export type Message =
-    ConnectMessage           |
-    ConnectionChangedMessage |
-    PlaybackMessage          |
-    SeekMessage              |
-    SelectTabMessage         |
-    DeselectTabMessage       |
-    TabSelectedMessage       |
-    TabChangedMessage        |
-    TabInfoRequestMessage    |
-RegrabVideoElementMessage;
+    ConnectMessage              |
+    ConnectionChangedMessage    |
+    PlaybackMessage             |
+    SeekMessage                 |
+    SelectTabMessage            |
+    DeselectTabMessage          |
+    TabSelectedMessage          |
+    TabChangedMessage           |
+    TabInfoRequestMessage       |
+    RegrabVideoElementMessage   |
+    PlayerControlPlayMessage    |
+    PlayerControlPauseMessage   |
+    PlayerControlForwardMessage |
+    PlayerControlBackwardMessage;
 
 export enum MessageType {
     CONNECT,
@@ -21,6 +25,10 @@ export enum MessageType {
     TAB_CHANGED,
     TAB_INFO_REQ,
     REGRAB_VIDEO_ELEMENT,
+    PLAYER_CONTROL_PLAY,
+    PLAYER_CONTROL_PAUSE,
+    PLAYER_CONTROL_FORWARD,
+    PLAYER_CONTROL_BACKWARD,
 }
 
 export interface ConnectMessage {
@@ -78,4 +86,22 @@ export interface TabInfoRequestMessage {
 
 export interface RegrabVideoElementMessage {
     type: MessageType.REGRAB_VIDEO_ELEMENT;
+}
+
+export interface PlayerControlPlayMessage {
+    type: MessageType.PLAYER_CONTROL_PLAY;
+}
+
+export interface PlayerControlPauseMessage {
+    type: MessageType.PLAYER_CONTROL_PAUSE;
+}
+
+export interface PlayerControlForwardMessage {
+    type: MessageType.PLAYER_CONTROL_FORWARD;
+    data: number;
+}
+
+export interface PlayerControlBackwardMessage {
+    type: MessageType.PLAYER_CONTROL_BACKWARD;
+    data: number;
 }

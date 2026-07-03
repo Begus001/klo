@@ -39,7 +39,7 @@ function error(msg: string) {
     console.error("Klo:", msg);
 }
 
-function seek(time: number) {
+function seek(time: number, setProgPause = true) {
     if (targetVideoElement == null) {
         targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
@@ -47,11 +47,13 @@ function seek(time: number) {
         }
     }
     debug("program seek");
-    isProgrammaticSeek = true;
+    if (setProgPause) {
+        isProgrammaticPause = true;
+    }
     targetVideoElement!.currentTime = time;
 }
 
-function play() {
+function play(setProgPause = true) {
     if (targetVideoElement == null) {
         targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
@@ -59,11 +61,13 @@ function play() {
         }
     }
     debug("program play");
-    isProgrammaticPlay = true;
+    if (setProgPause) {
+        isProgrammaticPause = true;
+    }
     targetVideoElement!.play();
 }
 
-function pause() {
+function pause(setProgPause = true) {
     if (targetVideoElement == null) {
         targetVideoElement = querySelectorDeep("video");
         if (!targetVideoElement) {
@@ -71,7 +75,9 @@ function pause() {
         }
     }
     debug("program pause");
-    isProgrammaticPause = true;
+    if (setProgPause) {
+        isProgrammaticPause = true;
+    }
     targetVideoElement!.pause();
 }
 
@@ -168,6 +174,24 @@ function registerEvents() {
         }
         else if (msg.type === MessageType.REGRAB_VIDEO_ELEMENT) {
             registerEvents();
+        }
+        else if (msg.type === MessageType.PLAYER_CONTROL_BACKWARD) {
+            if (targetVideoElement == null) {
+                return;
+            }
+            seek(targetVideoElement.currentTime - msg.data);
+        }
+        else if (msg.type === MessageType.PLAYER_CONTROL_PLAY) {
+            play();
+        }
+        else if (msg.type === MessageType.PLAYER_CONTROL_PAUSE) {
+            pause();
+        }
+        else if (msg.type === MessageType.PLAYER_CONTROL_FORWARD) {
+            if (targetVideoElement == null) {
+                return;
+            }
+            seek(targetVideoElement.currentTime + msg.data);
         }
     });
 })()
