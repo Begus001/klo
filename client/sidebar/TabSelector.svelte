@@ -87,7 +87,7 @@
     </div>
   {:else}
     <button class="btn btn-primary w-100" onclick={() => toggleTabLock()}>
-      Select tab
+      Capture active tab
     </button>
   {/if}
 </CollapsibleSection>

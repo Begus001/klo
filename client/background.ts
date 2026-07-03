@@ -163,6 +163,15 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             data: undefined,
         } as Message);
     }
+    else if (msg.type === MessageType.TAB_INFO_REQ) {
+        if (!targetTab || !targetTab.url) {
+            return;
+        }
+        browser.runtime.sendMessage({
+            type: MessageType.TAB_SELECTED,
+            data: targetTab,
+        } as Message);
+    }
     else if (msg.type === MessageType.FORCE_SYNC_URL) {
         if (!targetTab || !targetTab.url) {
             return;
