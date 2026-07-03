@@ -2,6 +2,7 @@ import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
 import typescript from '@rollup/plugin-typescript';
+import url from "@rollup/plugin-url";
 import css from "rollup-plugin-import-css";
 import svelte from "rollup-plugin-svelte";
 import { execSync } from "child_process";
@@ -101,6 +102,11 @@ export default [
     },
     plugins: [
       replace({ __GIT_TAG__: GIT_TAG, preventAssignment: true }),
+      url({
+        include: ["**/*.svg"],
+        limit: 0,
+        fileName: "res/[name][extname]",
+      }),
       copy_with_transform({ input: "sidebar/sidebar.html", output: "sidebar.html", transform: async (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
       copy_with_transform({ input: "sidebar/global.css", output: "global.css", transform: async (input) => minifyHtml(input, { collapseWhitespace: true, removeComments: true }) }),
       svelte({

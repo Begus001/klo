@@ -3,6 +3,7 @@
   import Settings from "./Settings.svelte";
   import Footer from "./Footer.svelte";
   import TabSelector from "./TabSelector.svelte";
+  import Controls from "./Controls.svelte";
 
   const GIT_TAG = "__GIT_TAG__";
   let settingsComponent: Settings;
@@ -16,6 +17,7 @@
 <main class="container-fluid vh-100 d-flex flex-column p-3">
   <Settings bind:this={settingsComponent} />
   <TabSelector />
+  <Controls />
 </main>
 
 <Footer version={GIT_TAG} bind:this={footerComponent} />
