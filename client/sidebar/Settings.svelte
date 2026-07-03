@@ -72,33 +72,28 @@
 </script>
 
 <CollapsibleSection name="Settings" {onVisibilityChanged}>
-  <div class="card mb-2">
-    <div class="card-body">
-      <h5 class="card-title">Settings</h5>
-      <div class="input-group">
-        <span class="input-group-text bg-secondary">Server</span>
-        <input
-          id="server-input"
-          type="text"
-          class="form-control"
-          bind:this={serverInputElement}
-          onkeydown={(e) => {
-            if (e.key === "Enter") toggleConnect();
-          }}
-          onchange={() => saveState()}
-        />
+  <div class="input-group">
+    <span class="input-group-text bg-secondary">Server</span>
+    <input
+      id="server-input"
+      type="text"
+      class="form-control"
+      bind:this={serverInputElement}
+      onkeydown={(e) => {
+        if (e.key === "Enter") toggleConnect();
+      }}
+      onchange={() => saveState()}
+    />
 
-        {#if connectionState === ConnectionState.DISCONNECTED}
-          <button class="btn btn-primary" onclick={() => toggleConnect()}
-            >Connect</button
-          >
-        {:else}
-          <button class="btn btn-danger" onclick={() => toggleConnect()}
-            >Disconnect</button
-          >
-        {/if}
-      </div>
-    </div>
+    {#if connectionState === ConnectionState.DISCONNECTED}
+      <button class="btn btn-primary" onclick={() => toggleConnect()}
+      >Connect</button
+      >
+    {:else}
+      <button class="btn btn-danger" onclick={() => toggleConnect()}
+      >Disconnect</button
+      >
+    {/if}
   </div>
 </CollapsibleSection>
 

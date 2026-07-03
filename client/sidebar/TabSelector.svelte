@@ -1,10 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
-  import {
-    MessageType,
-    type Message,
-  } from "../internal-messages";
+  import { MessageType, type Message } from "../internal-messages";
   import CollapsibleSection from "./CollapsibleSection.svelte";
 
   let selectedTab = $state<browser.tabs.Tab | undefined>();
@@ -13,8 +10,7 @@
     const listener = (msg: Message) => {
       if (msg.type === MessageType.TAB_SELECTED) {
         selectedTab = msg.data;
-      }
-      else if (msg.type === MessageType.TAB_CHANGED) {
+      } else if (msg.type === MessageType.TAB_CHANGED) {
         if (msg.data.changeInfo.title) {
           selectedTab = msg.data.tab;
         }
@@ -57,110 +53,51 @@
       focused: true,
     });
   }
-
-  async function regrabVideoElement() {
-    browser.runtime.sendMessage({
-      type: MessageType.REGRAB_VIDEO_ELEMENT
-    } as Message);
-  }
 </script>
 
 <CollapsibleSection name="Tab">
-  <div class="tab-selector-card mb-2">
-    <div class="tab-selector-header">
-      <div>
-        <h5  class="card-title">Tab</h5>
-        <div class="tab-selector-subtitle">
-          {selectedTab ? "Tab selected" : "No tab selected"}
+  {#if selectedTab}
+    <div class="tab-row">
+      <div class="tab-info-main">
+        <div class="tab-title" title={selectedTab.title}>
+          {selectedTab.title ?? "Untitled tab"}
+        </div>
+
+        <div class="tab-meta">
+          tab #{selectedTab.id}
+          {#if selectedTab.windowId != null}
+            · window #{selectedTab.windowId}
+          {/if}
         </div>
       </div>
 
-      <button
-        class="btn"
-        class:btn-primary={!selectedTab}
-        class:btn-danger={selectedTab}
-        onclick={() => toggleTabLock()}
-      >
-        {selectedTab ? "Release tab" : "Select tab"}
-      </button>
-    </div>
-
-    {#if selectedTab}
-      <div class="tab-info">
-        <div class="tab-info-main">
-          <div class="tab-title" title={selectedTab.title}>
-            {selectedTab.title ?? "Untitled tab"}
-          </div>
-
-          <div class="tab-meta">
-            tab #{selectedTab.id}
-            {#if selectedTab.windowId != null}
-              · window #{selectedTab.windowId}
-            {/if}
-          </div>
-        </div>
-
+      <div class="btn-group ab-actions">
         <button
-          class="btn btn-sm btn-outline-primary switch-button"
+          class="btn btn-outline-primary"
           onclick={() => switchToCurrentTab()}
         >
           Switch to
         </button>
-        <button
-          class="btn btn-sm btn-outline-primary switch-button"
-          onclick={() => regrabVideoElement()}
-        >
-          Regrab video
+
+
+        <button class="btn btn-danger" onclick={() => toggleTabLock()}>
+          Release
         </button>
       </div>
-    {/if}
-  </div>
+    </div>
+  {:else}
+    <button class="btn btn-primary w-100" onclick={() => toggleTabLock()}>
+      Select tab
+    </button>
+  {/if}
 </CollapsibleSection>
 
-
 <style>
-  .tab-toggle {
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      color 0.2s ease;
-  }
-
-  .tab-selector-card {
-    background-color: var(--bs-dark);
-    color: var(--bs-light);
-    border: 1px solid rgba(255, 255, 255, 0.125);
-    border-radius: var(--bs-border-radius);
-    padding: 0.65rem 0.75rem;
-  }
-
-  .tab-selector-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .tab-selector-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    line-height: 1.1;
-  }
-
-  .tab-selector-subtitle {
-    margin-top: 0.15rem;
-    color: #777;
-    font-size: 0.8rem;
-    line-height: 1.1;
-  }
-
-  .tab-info {
+  .tab-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-top: 0.55rem;
-    padding-top: 0.55rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 0;
   }
 
   .tab-info-main {
@@ -183,7 +120,8 @@
     line-height: 1.1;
   }
 
-  .switch-button {
+  .tab-actions {
     flex: 0 0 auto;
+    white-space: nowrap;
   }
 </style>

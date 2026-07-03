@@ -2,19 +2,22 @@
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
-  let props: { children: any; name: string, onVisibilityChanged?: (hidden: boolean) => void } = $props();
+  let props: {
+    children: any;
+    name: string;
+    onVisibilityChanged?: (hidden: boolean) => void;
+  } = $props();
+
   let hidden = $state(true);
   const stateKey = $derived(`${props.name.toLowerCase()}-section-hidden`);
 
-  onMount(async () => {
+  onMount(() => {
     loadHiddenState();
   });
 
-  export async function toggleVisibility() {
+  function toggleVisibility() {
     hidden = !hidden;
-    if (props.onVisibilityChanged) {
-      props.onVisibilityChanged(hidden);
-    }
+    props.onVisibilityChanged?.(hidden);
     saveHiddenState();
   }
 
@@ -25,36 +28,70 @@
   }
 
   async function loadHiddenState() {
-    let tmp = await browser.storage.local.get(stateKey);
-    if (!tmp) {
+    const tmp = await browser.storage.local.get(stateKey);
+
+    if (typeof tmp[stateKey] === "boolean") {
+      hidden = tmp[stateKey];
+    } else {
       saveHiddenState();
     }
-    hidden = tmp[stateKey];
   }
 </script>
 
-<div class="container-fluid p-0 m-0 d-flex flex-column mb-3">
+<div class="card mb-2 collapsible-card">
+  <button
+    type="button"
+    class="card-header collapsible-header"
+    onclick={toggleVisibility}
+  >
+    <span class="collapsible-title">{props.name}</span>
+    <span class="collapsible-arrow" class:open={!hidden}>▸</span>
+  </button>
+
   {#if !hidden}
     <div transition:slide={{ duration: 200 }}>
-      {@render props.children()}
+      <div class="card-body p-1 m-1">
+        {@render props.children()}
+      </div>
     </div>
   {/if}
-
-  <button
-    class="btn btn-sm settings-toggle"
-    class:btn-outline-secondary={hidden}
-    class:btn-outline-danger={!hidden}
-    onclick={() => toggleVisibility()}
-  >
-    {hidden ? props.name : "Close"}
-  </button>
 </div>
 
 <style>
-  .settings-toggle {
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      color 0.2s ease;
+  .collapsible-card {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    overflow: hidden;
+  }
+
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    border: 0;
+    /* background: transparent; */
+    color: inherit;
+
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+  }
+
+  .collapsible-header:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .collapsible-title {
+    font-weight: 600;
+  }
+
+  .collapsible-arrow {
+    color: #777;
+    transition: transform 0.2s ease;
+  }
+
+  .collapsible-arrow.open {
+    transform: rotate(90deg);
   }
 </style>
