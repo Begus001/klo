@@ -52,6 +52,7 @@
     background-color: #0a0a0a;
     padding: 3px 5px;
     gap: 10px;
+    height: 2rem;
   }
 
   #footer-start {

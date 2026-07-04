@@ -18,9 +18,14 @@
   <Settings bind:this={settingsComponent} />
   <TabSelector />
   <Controls />
+  <div id="footer-displacement"></div>
 </main>
 
 <Footer version={GIT_TAG} bind:this={footerComponent} />
 
 <style>
+  #footer-displacement {
+    height: 2rem;
+    flex: 0 0 auto;
+  }
 </style>

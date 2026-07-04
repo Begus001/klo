@@ -152,9 +152,4 @@
     font-size: 0.75rem;
     line-height: 1.1;
   }
-
-  .tab-actions {
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
 </style>
