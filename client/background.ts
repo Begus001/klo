@@ -1,26 +1,55 @@
 import { ReconWebSocket } from "./recon-websocket.js";
-import { ConnectionState, type Message, MessageType } from "./internal-messages.js";
+import { ConnectionState, type Message, MessageType, Tab } from "./internal-messages.js";
 import { type Message as ExternalMessage, MessageType as ExternalMessageType } from "../messages.js";
 
 console.log("background script running")
 
-let targetTab: browser.tabs.Tab | undefined;
-let selfUpdate = false;
+let targetTabId: number | undefined;
+let isRemoteUrlUpdate = false;
 let connectionState = ConnectionState.DISCONNECTED;
 let acceptUrlChange = true;
 
-const onMsg = (_ws: WebSocket, strmsg: string) => {
+async function selectTab(): Promise<Tab> {
+    return new Promise(async (res, rej) => {
+        const win = await browser.windows.getCurrent();
+        const tabs = await browser.tabs.query({ active: true, windowId: win.id });
+
+        if (tabs.length < 1 || !tabs[0].id) {
+            console.error("no tabs found");
+            rej();
+        }
+
+        const tab = Tab.fromBrowserTab(tabs[0]);
+        if (tab) {
+            res(tab);
+        }
+        else {
+            rej();
+        }
+    });
+}
+
+async function getTab(id: number | undefined = targetTabId): Promise<Tab | undefined> {
+    if (id === undefined) {
+        return undefined;
+    }
+    const targetTab = await browser.tabs.get(id);
+    return Tab.fromBrowserTab(targetTab);
+}
+
+const onMsg = async (_ws: WebSocket, strmsg: string) => {
     console.debug(strmsg);
 
     let msg: ExternalMessage = JSON.parse(strmsg);
     if (msg.type === ExternalMessageType.PLAYBACK) {
         console.debug("got playback msg");
 
-        if (!targetTab || !targetTab.id) {
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
 
-        browser.tabs.sendMessage(targetTab.id, {
+        browser.tabs.sendMessage(tab.id, {
             type: MessageType.PLAYBACK,
             data: msg.data,
         } as Message);
@@ -28,21 +57,24 @@ const onMsg = (_ws: WebSocket, strmsg: string) => {
     else if (msg.type === ExternalMessageType.SEEK) {
         console.debug("got seek msg");
 
-        if (!targetTab || !targetTab.id) {
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
 
-        browser.tabs.sendMessage(targetTab.id, {
+        browser.tabs.sendMessage(tab.id, {
             type: MessageType.SEEK,
             data: msg.data,
         } as Message);
     }
     else if (msg.type === ExternalMessageType.URL_CHANGE) {
-        console.debug("got url msg");
-        if (!targetTab || !targetTab.id) {
+        console.debug("got url msg", msg.data);
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
-        if (msg.data === targetTab.url) {
+
+        if (msg.data === tab.url) {
             console.debug("received url change msg with same url as ours");
             return;
         }
@@ -50,7 +82,8 @@ const onMsg = (_ws: WebSocket, strmsg: string) => {
             console.debug("accept url change is false, so we're ignoring this");
             return;
         }
-        browser.tabs.update(targetTab.id, {
+        setTimeout(() => isRemoteUrlUpdate = true, 20);
+        browser.tabs.update(tab.id, {
             url: msg.data
         });
     }
@@ -78,28 +111,32 @@ const onDisconnected = () => {
     connectionState = ConnectionState.DISCONNECTED;
 };
 
-async function selectTab(): Promise<browser.tabs.Tab> {
-    return new Promise(async (res, rej) => {
-        const win = await browser.windows.getCurrent();
-        const tabs = await browser.tabs.query({ active: true, windowId: win.id });
-
-        if (tabs.length < 1 || !tabs[0].id) {
-            console.error("no tabs found");
-            rej();
-        }
-
-        res(tabs[0]);
-    });
-}
-
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (!targetTab || !targetTab.id || targetTab.id != tabId || !tab.id) {
+async function handleNavigation(test: any) {
+    const tab = await getTab();
+    if (!tab) {
         return;
     }
 
-    if (selfUpdate) {
-        console.debug("selfUpdate");
-        selfUpdate = false;
+    if (isRemoteUrlUpdate) {
+        console.debug("isRemoteUrlUpdate");
+        isRemoteUrlUpdate = false;
+        return;
+    }
+
+    console.debug("navigation commited on target tab", tab.url);
+    ws.send(JSON.stringify({
+        type: ExternalMessageType.URL_CHANGE,
+        data: tab.url
+    } as ExternalMessage));
+}
+
+browser.webNavigation.onCommitted.addListener(handleNavigation);
+browser.webNavigation.onHistoryStateUpdated.addListener(handleNavigation);
+browser.webNavigation.onReferenceFragmentUpdated.addListener(handleNavigation);
+
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, browserTab) => {
+    const tab = await getTab();
+    if (!tab) {
         return;
     }
 
@@ -109,18 +146,8 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         data: { changeInfo: changeInfo, tab: tab },
     };
 
-    if (changeInfo.url && changeInfo.url !== targetTab.url) {
-        console.debug("url changed on target tab:", changeInfo.url);
-        ws.send(JSON.stringify({
-            type: ExternalMessageType.URL_CHANGE,
-            data: changeInfo.url
-        } as ExternalMessage));
-    }
-
-    targetTab = tab;
-
     browser.runtime.sendMessage(msg);
-    browser.tabs.sendMessage(targetTab.id!, msg);
+    browser.tabs.sendMessage(tab.id, msg);
 });
 
 browser.runtime.onMessage.addListener(async (msg: Message) => {
@@ -141,7 +168,7 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         } as Message);
     }
     else if (msg.type === MessageType.PLAYBACK) {
-        if (!targetTab) return;
+        if (targetTabId === undefined) return;
         console.log("background got playback from content");
         ws.send(JSON.stringify({
             type: ExternalMessageType.PLAYBACK,
@@ -149,7 +176,7 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         } as ExternalMessage));
     }
     else if (msg.type === MessageType.SEEK) {
-        if (!targetTab) return;
+        if (targetTabId === undefined) return;
         console.log("background got seek from content");
         ws.send(JSON.stringify({
             type: ExternalMessageType.SEEK,
@@ -164,7 +191,7 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
                 data: tab,
             } as Message);
 
-            targetTab = tab;
+            targetTabId = tab.id;
 
             // TODO: instead of reloading, load the page set on the server
             // browser.tabs.reload(tab.id!);
@@ -172,23 +199,25 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
     }
     else if (msg.type === MessageType.DESELECT_TAB) {
         console.debug("background tab deselect");
-        targetTab = undefined;
+        targetTabId = undefined;
         browser.runtime.sendMessage({
             type: MessageType.TAB_SELECTED,
             data: undefined,
         } as Message);
     }
     else if (msg.type === MessageType.TAB_INFO_REQ) {
-        if (!targetTab || !targetTab.url) {
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
         browser.runtime.sendMessage({
             type: MessageType.TAB_SELECTED,
-            data: targetTab,
+            data: tab,
         } as Message);
     }
     else if (msg.type === MessageType.FORCE_SYNC_URL) {
-        if (!targetTab || !targetTab.url) {
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
 
@@ -196,14 +225,13 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
 
         ws.send(JSON.stringify({
             type: ExternalMessageType.URL_CHANGE,
-            data: targetTab.url
+            data: tab.url
         } as ExternalMessage));
     }
     else if (msg.type === MessageType.SET_ACCEPT_URL_CHANGE) {
         acceptUrlChange = msg.data;
     }
     else if (msg.type === MessageType.GET_ACCEPT_URL_CHANGE) {
-        console.log("sending", acceptUrlChange);
         return acceptUrlChange;
     }
     else if (
@@ -214,11 +242,12 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         msg.type === MessageType.PLAYER_CONTROL_FORWARD  ||
         msg.type === MessageType.FORCE_SYNC_PLAYBACK
     ) {
-        if (!targetTab || !targetTab.id) {
+        const tab = await getTab();
+        if (!tab) {
             return;
         }
 
-        browser.tabs.sendMessage(targetTab.id, msg);
+        browser.tabs.sendMessage(tab.id, msg);
     }
 });
 

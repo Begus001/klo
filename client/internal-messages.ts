@@ -1,3 +1,19 @@
+export class Tab {
+    constructor(
+        public id: number,
+        public url: string,
+        public title: string,
+        public winId: number,
+    ) { }
+
+    static fromBrowserTab(bt: browser.tabs.Tab | undefined): Tab | undefined {
+        if (!bt || bt.id === undefined || !bt.url || !bt.title || bt.windowId === undefined) {
+            return undefined;
+        }
+        return new Tab(bt.id, bt.url, bt.title, bt.windowId);
+    }
+}
+
 export enum MessageType {
     CONNECT,
     CONNECTION_CHANGED,
@@ -83,14 +99,14 @@ export interface DeselectTabMessage {
 
 export interface TabSelectedMessage {
   type: MessageType.TAB_SELECTED;
-  data?: browser.tabs.Tab;
+  data?: Tab;
 }
 
 export interface TabChangedMessage {
     type: MessageType.TAB_CHANGED;
     data: {
         changeInfo: browser.tabs._OnUpdatedChangeInfo;
-        tab: browser.tabs.Tab;
+        tab: Tab;
     };
 }
 

@@ -28,7 +28,6 @@
       type: MessageType.GET_ACCEPT_URL_CHANGE,
     }).then((resp: any) => {
         acceptUrlChange = resp;
-        console.log("test", resp);
     });
 
     return () => {
