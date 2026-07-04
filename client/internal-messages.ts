@@ -1,22 +1,3 @@
-export type Message =
-    ConnectMessage                |
-    ConnectionChangedMessage      |
-    ConnectionStateRequestMessage |
-    PlaybackMessage               |
-    SeekMessage                   |
-    SelectTabMessage              |
-    DeselectTabMessage            |
-    TabSelectedMessage            |
-    TabChangedMessage             |
-    TabInfoRequestMessage         |
-    RegrabVideoElementMessage     |
-    PlayerControlPlayMessage      |
-    PlayerControlPauseMessage     |
-    PlayerControlForwardMessage   |
-    PlayerControlBackwardMessage  |
-    ForceSyncPlaybackMessage      |
-    ForceSyncUrlMessage;
-
 export enum MessageType {
     CONNECT,
     CONNECTION_CHANGED,
@@ -35,7 +16,30 @@ export enum MessageType {
     PLAYER_CONTROL_BACKWARD,
     FORCE_SYNC_PLAYBACK,
     FORCE_SYNC_URL,
+    SET_ACCEPT_URL_CHANGE,
+    GET_ACCEPT_URL_CHANGE,
 }
+
+export type Message =
+    ConnectMessage                |
+    ConnectionChangedMessage      |
+    ConnectionStateRequestMessage |
+    PlaybackMessage               |
+    SeekMessage                   |
+    SelectTabMessage              |
+    DeselectTabMessage            |
+    TabSelectedMessage            |
+    TabChangedMessage             |
+    TabInfoRequestMessage         |
+    RegrabVideoElementMessage     |
+    PlayerControlPlayMessage      |
+    PlayerControlPauseMessage     |
+    PlayerControlForwardMessage   |
+    PlayerControlBackwardMessage  |
+    ForceSyncPlaybackMessage      |
+    ForceSyncUrlMessage           |
+    SetAcceptUrlChangeMessage     |
+    GetAcceptUrlChangeMessage;
 
 export interface ConnectMessage {
     type: MessageType.CONNECT;
@@ -122,4 +126,13 @@ export interface ForceSyncPlaybackMessage {
 
 export interface ForceSyncUrlMessage {
     type: MessageType.FORCE_SYNC_URL
+}
+
+export interface SetAcceptUrlChangeMessage {
+    type: MessageType.SET_ACCEPT_URL_CHANGE,
+    data: boolean
+}
+
+export interface GetAcceptUrlChangeMessage {
+    type: MessageType.GET_ACCEPT_URL_CHANGE
 }

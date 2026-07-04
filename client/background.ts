@@ -7,6 +7,7 @@ console.log("background script running")
 let targetTab: browser.tabs.Tab | undefined;
 let selfUpdate = false;
 let connectionState = ConnectionState.DISCONNECTED;
+let acceptUrlChange = true;
 
 const onMsg = (_ws: WebSocket, strmsg: string) => {
     console.debug(strmsg);
@@ -43,6 +44,10 @@ const onMsg = (_ws: WebSocket, strmsg: string) => {
         }
         if (msg.data === targetTab.url) {
             console.debug("received url change msg with same url as ours");
+            return;
+        }
+        if (!acceptUrlChange) {
+            console.debug("accept url change is false, so we're ignoring this");
             return;
         }
         browser.tabs.update(targetTab.id, {
@@ -193,6 +198,13 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             type: ExternalMessageType.URL_CHANGE,
             data: targetTab.url
         } as ExternalMessage));
+    }
+    else if (msg.type === MessageType.SET_ACCEPT_URL_CHANGE) {
+        acceptUrlChange = msg.data;
+    }
+    else if (msg.type === MessageType.GET_ACCEPT_URL_CHANGE) {
+        console.log("sending", acceptUrlChange);
+        return acceptUrlChange;
     }
     else if (
         msg.type === MessageType.REGRAB_VIDEO_ELEMENT    ||

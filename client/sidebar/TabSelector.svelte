@@ -5,6 +5,7 @@
   import CollapsibleSection from "./CollapsibleSection.svelte";
 
   let selectedTab = $state<browser.tabs.Tab | undefined>();
+  let acceptUrlChange = $state(true);
 
   onMount(() => {
     const listener = (msg: Message) => {
@@ -22,6 +23,13 @@
       type: MessageType.TAB_INFO_REQ,
       data: undefined,
     } as Message);
+
+    browser.runtime.sendMessage({
+      type: MessageType.GET_ACCEPT_URL_CHANGE,
+    }).then((resp: any) => {
+        acceptUrlChange = resp;
+        console.log("test", resp);
+    });
 
     return () => {
       browser.runtime.onMessage.removeListener(listener);
@@ -53,6 +61,14 @@
       focused: true,
     });
   }
+
+  function onAcceptUrlChangeChanged(e: Event) {
+    const checked = (e.currentTarget as HTMLInputElement).checked;
+    browser.runtime.sendMessage({
+      type: MessageType.SET_ACCEPT_URL_CHANGE,
+      data: checked
+    } as Message);
+  }
 </script>
 
 <CollapsibleSection name="Tab">
@@ -79,7 +95,6 @@
           Switch to
         </button>
 
-
         <button class="btn btn-danger" onclick={() => toggleTabLock()}>
           Release
         </button>
@@ -90,6 +105,13 @@
       Capture active tab
     </button>
   {/if}
+
+  <div class="form-check mt-2">
+    <input class="form-check-input" type="checkbox" id="cbAcceptUrlChange" checked={acceptUrlChange} onchange={(e) => onAcceptUrlChangeChanged(e)}>
+    <label class="form-check-label" for="cbAcceptUrlChange">
+      Accept URL change request
+    </label>
+  </div>
 </CollapsibleSection>
 
 <style>

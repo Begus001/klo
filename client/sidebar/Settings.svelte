@@ -7,12 +7,12 @@
   } from "../internal-messages";
   import CollapsibleSection from "./CollapsibleSection.svelte";
 
-  const stateKey = "settings-section-state";
+  const stateKey = "connection-section-state";
 
   let serverInputElement: HTMLInputElement | undefined = $state();
   let connectionState = $state(ConnectionState.DISCONNECTED);
 
-  onMount(async () => {
+  onMount(() => {
     const listener = (msg: Message) => {
       if (msg.type === MessageType.CONNECTION_CHANGED) {
         connectionState = msg.data;
@@ -75,7 +75,7 @@
   }
 </script>
 
-<CollapsibleSection name="Settings" {onVisibilityChanged}>
+<CollapsibleSection name="Connection" {onVisibilityChanged}>
   <div class="input-group">
     <span class="input-group-text bg-secondary">Server</span>
     <input
