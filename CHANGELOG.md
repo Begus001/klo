@@ -1,5 +1,10 @@
 # Klo Changelog
 
+## v0.2.4
+
+Client:
+  - Fix collapsible sections having empty scrollbars
+
 ## v0.2.3
 
 Client:
