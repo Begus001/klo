@@ -1,5 +1,10 @@
 # Klo Changelog
 
+## v0.2.2
+
+Client:
+  - Fix connection state not persisting after closing side panel
+
 ## v0.2.1
 
 Client:
