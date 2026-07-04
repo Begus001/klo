@@ -2,7 +2,7 @@ name: klo
 services:
   klo-server:
     container_name: klo-server
-    image: git.goisser.net/benjamin/klo-server:0.2.2
+    image: git.goisser.net/benjamin/klo-server:0.2.3
     ports:
       - "42070:42070"
     build:

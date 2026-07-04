@@ -1,5 +1,13 @@
 # Klo Changelog
 
+## v0.2.3
+
+Client:
+  - Fix vertical scrolling in side bar
+  - Allow separately ignoring manual and automatic URL change requests
+  - Fix URL change request not being sent for PWAs
+  - Declutter controls section
+
 ## v0.2.2
 
 Client:
