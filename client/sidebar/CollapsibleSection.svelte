@@ -62,8 +62,6 @@
     flex-shrink: 0;
     background-color: var(--bs-dark);
     color: var(--bs-light);
-    /* overflow: hidden; */
-    overflow: scroll;
   }
 
   .collapsible-header {
