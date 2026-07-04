@@ -22,6 +22,7 @@ export interface SeekMessage {
 export interface UrlChangeMessage {
     type: MessageType.URL_CHANGE;
     data: string;
+    force?: boolean;
 }
 
 export interface VideoState {

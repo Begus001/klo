@@ -144,9 +144,14 @@ export interface ForceSyncUrlMessage {
     type: MessageType.FORCE_SYNC_URL
 }
 
+export interface AcceptUrlChangeData {
+    automatic: boolean;
+    manual: boolean;
+}
+
 export interface SetAcceptUrlChangeMessage {
     type: MessageType.SET_ACCEPT_URL_CHANGE,
-    data: boolean
+    data: AcceptUrlChangeData
 }
 
 export interface GetAcceptUrlChangeMessage {

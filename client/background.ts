@@ -1,5 +1,5 @@
 import { ReconWebSocket } from "./recon-websocket.js";
-import { ConnectionState, type Message, MessageType, Tab } from "./internal-messages.js";
+import { type AcceptUrlChangeData, ConnectionState, type Message, MessageType, Tab } from "./internal-messages.js";
 import { type Message as ExternalMessage, MessageType as ExternalMessageType } from "../messages.js";
 
 console.log("background script running")
@@ -7,7 +7,7 @@ console.log("background script running")
 let targetTabId: number | undefined;
 let isRemoteUrlUpdate = false;
 let connectionState = ConnectionState.DISCONNECTED;
-let acceptUrlChange = true;
+let acceptUrlChange: AcceptUrlChangeData = { automatic: true, manual: true };
 
 async function selectTab(): Promise<Tab> {
     return new Promise(async (res, rej) => {
@@ -78,10 +78,17 @@ const onMsg = async (_ws: WebSocket, strmsg: string) => {
             console.debug("received url change msg with same url as ours");
             return;
         }
-        if (!acceptUrlChange) {
-            console.debug("accept url change is false, so we're ignoring this");
+
+        if (acceptUrlChange.automatic === false && msg.force === false) {
+            console.debug("accept url change auto is false, so we're ignoring this");
             return;
         }
+
+        if (acceptUrlChange.manual === false && msg.force === true) {
+            console.debug("accept url change manual is false, so we're ignoring this");
+            return;
+        }
+
         setTimeout(() => isRemoteUrlUpdate = true, 20);
         browser.tabs.update(tab.id, {
             url: msg.data
@@ -126,7 +133,8 @@ async function handleNavigation(test: any) {
     console.debug("navigation commited on target tab", tab.url);
     ws.send(JSON.stringify({
         type: ExternalMessageType.URL_CHANGE,
-        data: tab.url
+        data: tab.url,
+        force: false
     } as ExternalMessage));
 }
 
@@ -225,14 +233,18 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
 
         ws.send(JSON.stringify({
             type: ExternalMessageType.URL_CHANGE,
-            data: tab.url
+            data: tab.url,
+            force: true
         } as ExternalMessage));
     }
     else if (msg.type === MessageType.SET_ACCEPT_URL_CHANGE) {
         acceptUrlChange = msg.data;
     }
     else if (msg.type === MessageType.GET_ACCEPT_URL_CHANGE) {
-        return acceptUrlChange;
+        browser.runtime.sendMessage({
+            type: MessageType.SET_ACCEPT_URL_CHANGE,
+            data: acceptUrlChange
+        } as Message);
     }
     else if (
         msg.type === MessageType.REGRAB_VIDEO_ELEMENT    ||

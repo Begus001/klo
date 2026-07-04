@@ -1,20 +1,23 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { slide } from "svelte/transition";
-  import { MessageType, type Message } from "../internal-messages";
+  import { MessageType, Tab, type AcceptUrlChangeData, type Message } from "../internal-messages";
   import CollapsibleSection from "./CollapsibleSection.svelte";
 
-  let selectedTab = $state<browser.tabs.Tab | undefined>();
-  let acceptUrlChange = $state(true);
+  let selectedTab = $state<Tab | undefined>();
+  let acceptUrlChange: AcceptUrlChangeData = $state({ automatic: true, manual: true });
 
   onMount(() => {
     const listener = (msg: Message) => {
       if (msg.type === MessageType.TAB_SELECTED) {
         selectedTab = msg.data;
-      } else if (msg.type === MessageType.TAB_CHANGED) {
+      }
+      else if (msg.type === MessageType.TAB_CHANGED) {
         if (msg.data.changeInfo.title) {
           selectedTab = msg.data.tab;
         }
+      }
+      else if (msg.type === MessageType.SET_ACCEPT_URL_CHANGE) {
+        acceptUrlChange = msg.data;
       }
     };
     browser.runtime.onMessage.addListener(listener);
@@ -26,9 +29,7 @@
 
     browser.runtime.sendMessage({
       type: MessageType.GET_ACCEPT_URL_CHANGE,
-    }).then((resp: any) => {
-        acceptUrlChange = resp;
-    });
+    } as Message);
 
     return () => {
       browser.runtime.onMessage.removeListener(listener);
@@ -48,7 +49,7 @@
   }
 
   async function switchToCurrentTab() {
-    if (selectedTab?.id == null || selectedTab.windowId == null) {
+    if (!selectedTab) {
       return;
     }
 
@@ -56,22 +57,23 @@
       active: true,
     });
 
-    await browser.windows.update(selectedTab.windowId, {
+    await browser.windows.update(selectedTab.winId, {
       focused: true,
     });
   }
 
-  function onAcceptUrlChangeChanged(e: Event) {
-    const checked = (e.currentTarget as HTMLInputElement).checked;
+  function onAcceptUrlChangeChanged() {
     browser.runtime.sendMessage({
       type: MessageType.SET_ACCEPT_URL_CHANGE,
-      data: checked
+      data: $state.snapshot(acceptUrlChange),
     } as Message);
   }
 </script>
 
 <CollapsibleSection name="Tab">
+  <ul class="list-group list-group-flush">
   {#if selectedTab}
+    <li class="list-group-item">
     <div class="tab-row">
       <div class="tab-info-main">
         <div class="tab-title" title={selectedTab.title}>
@@ -80,8 +82,8 @@
 
         <div class="tab-meta">
           tab #{selectedTab.id}
-          {#if selectedTab.windowId != null}
-            · window #{selectedTab.windowId}
+          {#if selectedTab.winId != null}
+            · window #{selectedTab.winId}
           {/if}
         </div>
       </div>
@@ -99,18 +101,28 @@
         </button>
       </div>
     </div>
+  </li>
   {:else}
     <button class="btn btn-primary w-100" onclick={() => toggleTabLock()}>
       Capture active tab
     </button>
   {/if}
 
-  <div class="form-check mt-2">
-    <input class="form-check-input" type="checkbox" id="cbAcceptUrlChange" checked={acceptUrlChange} onchange={(e) => onAcceptUrlChangeChanged(e)}>
-    <label class="form-check-label" for="cbAcceptUrlChange">
-      Accept URL change request
-    </label>
-  </div>
+    <li class="list-group-item">
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="cbAcceptUrlChangeAuto" bind:checked={acceptUrlChange.automatic} onchange={() => onAcceptUrlChangeChanged()}>
+        <label class="form-check-label" for="cbAcceptUrlChangeAuto">
+          Accept automatic URL change requests
+        </label>
+      </div>
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="cbAcceptUrlChangeManual" bind:checked={acceptUrlChange.manual} onchange={() => onAcceptUrlChangeChanged()}>
+        <label class="form-check-label" for="cbAcceptUrlChangeManual">
+          Accept manual URL change requests
+        </label>
+      </div>
+    </li>
+  </ul>
 </CollapsibleSection>
 
 <style>
