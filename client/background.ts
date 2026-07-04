@@ -6,6 +6,7 @@ console.log("background script running")
 
 let targetTab: browser.tabs.Tab | undefined;
 let selfUpdate = false;
+let connectionState = ConnectionState.DISCONNECTED;
 
 const onMsg = (_ws: WebSocket, strmsg: string) => {
     console.debug(strmsg);
@@ -55,18 +56,21 @@ const onConnecting = () => {
         type: MessageType.CONNECTION_CHANGED,
         data: ConnectionState.CONNECTING,
     } as Message);
+    connectionState = ConnectionState.CONNECTING;
 };
 const onConnected = () => {
     browser.runtime.sendMessage({
         type: MessageType.CONNECTION_CHANGED,
         data: ConnectionState.CONNECTED,
     } as Message);
+    connectionState = ConnectionState.CONNECTED;
 };
 const onDisconnected = () => {
     browser.runtime.sendMessage({
         type: MessageType.CONNECTION_CHANGED,
         data: ConnectionState.DISCONNECTED,
     } as Message);
+    connectionState = ConnectionState.DISCONNECTED;
 };
 
 async function selectTab(): Promise<browser.tabs.Tab> {
@@ -124,6 +128,12 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
             }
             ws.connect(address);
         }
+    }
+    else if (msg.type === MessageType.CONNECTION_STATE_REQ) {
+        browser.runtime.sendMessage({
+            type: MessageType.CONNECTION_CHANGED,
+            data: connectionState,
+        } as Message);
     }
     else if (msg.type === MessageType.PLAYBACK) {
         if (!targetTab) return;

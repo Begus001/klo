@@ -1,24 +1,26 @@
 export type Message =
-    ConnectMessage               |
-    ConnectionChangedMessage     |
-    PlaybackMessage              |
-    SeekMessage                  |
-    SelectTabMessage             |
-    DeselectTabMessage           |
-    TabSelectedMessage           |
-    TabChangedMessage            |
-    TabInfoRequestMessage        |
-    RegrabVideoElementMessage    |
-    PlayerControlPlayMessage     |
-    PlayerControlPauseMessage    |
-    PlayerControlForwardMessage  |
-    PlayerControlBackwardMessage |
-    ForceSyncPlaybackMessage     |
+    ConnectMessage                |
+    ConnectionChangedMessage      |
+    ConnectionStateRequestMessage |
+    PlaybackMessage               |
+    SeekMessage                   |
+    SelectTabMessage              |
+    DeselectTabMessage            |
+    TabSelectedMessage            |
+    TabChangedMessage             |
+    TabInfoRequestMessage         |
+    RegrabVideoElementMessage     |
+    PlayerControlPlayMessage      |
+    PlayerControlPauseMessage     |
+    PlayerControlForwardMessage   |
+    PlayerControlBackwardMessage  |
+    ForceSyncPlaybackMessage      |
     ForceSyncUrlMessage;
 
 export enum MessageType {
     CONNECT,
     CONNECTION_CHANGED,
+    CONNECTION_STATE_REQ,
     PLAYBACK,
     SEEK,
     SELECT_TAB,
@@ -49,6 +51,10 @@ export enum ConnectionState {
 export interface ConnectionChangedMessage {
     type: MessageType.CONNECTION_CHANGED;
     data: ConnectionState;
+}
+
+export interface ConnectionStateRequestMessage {
+    type: MessageType.CONNECTION_STATE_REQ,
 }
 
 export interface PlaybackMessage {

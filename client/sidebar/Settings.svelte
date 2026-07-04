@@ -22,6 +22,10 @@
 
     loadState();
 
+    browser.runtime.sendMessage({
+      type: MessageType.CONNECTION_STATE_REQ
+    } as Message);
+
     return () => {
       browser.runtime.onMessage.removeListener(listener);
     };
