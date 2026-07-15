@@ -241,5 +241,12 @@ function registerEvents() {
     browser.runtime.sendMessage({
         type: MessageType.TAB_INFO_REQ,
     } as Message);
+
+    // This is a hack, but it should prevent it from losing the video element
+    setInterval(() => {
+        if (targetTabSelected) {
+            registerEvents();
+        }
+    }, 500);
 })()
 
