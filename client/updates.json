@@ -41,6 +41,10 @@
         {
           "version": "0.2.4",
           "update_link": "https://git.goisser.net/api/packages/Benjamin/generic/klo-client/v0.2.4/klo-client-v0.2.4.xpi"
+        },
+        {
+          "version": "0.2.5",
+          "update_link": "https://git.goisser.net/api/packages/Benjamin/generic/klo-client/v0.2.5/klo-client-v0.2.5.xpi"
         }
       ]
     }

@@ -1,5 +1,11 @@
 # Klo Changelog
 
+## v0.2.5
+
+Client:
+  - Prevent content script from doing anything when no tab is captured (hopefully)
+  - Add video regrab interval as a temporary fix for the content script losing the video element
+
 ## v0.2.4
 
 Client:
