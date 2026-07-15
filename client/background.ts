@@ -201,12 +201,18 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
 
             targetTabId = tab.id;
 
+            browser.tabs.sendMessage(targetTabId, msg);
+
             // TODO: instead of reloading, load the page set on the server
             // browser.tabs.reload(tab.id!);
         });
     }
     else if (msg.type === MessageType.DESELECT_TAB) {
         console.debug("background tab deselect");
+        const tab = await getTab();
+        if (tab) {
+            browser.tabs.sendMessage(tab.id, msg);
+        }
         targetTabId = undefined;
         browser.runtime.sendMessage({
             type: MessageType.TAB_SELECTED,
@@ -218,10 +224,13 @@ browser.runtime.onMessage.addListener(async (msg: Message) => {
         if (!tab) {
             return;
         }
-        browser.runtime.sendMessage({
+        console.debug("tab info req");
+        const message: Message = {
             type: MessageType.TAB_SELECTED,
             data: tab,
-        } as Message);
+        };
+        browser.runtime.sendMessage(message);
+        browser.tabs.sendMessage(tab.id, message);
     }
     else if (msg.type === MessageType.FORCE_SYNC_URL) {
         const tab = await getTab();

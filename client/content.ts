@@ -1,5 +1,6 @@
 import { MessageType, type Message } from "./internal-messages";
 
+let targetTabSelected = false;
 let targetVideoElement: HTMLVideoElement | null = null;
 let isProgrammaticSeek = false;
 let isProgrammaticPlay = false;
@@ -82,6 +83,11 @@ function pause(setProgPause = true) {
 }
 
 function onSeeked(e: any) {
+    if (!targetTabSelected) {
+        debug("no target tab selected, not doing seek");
+        return;
+    }
+
     if (!targetVideoElement) {
         targetVideoElement = e.target as HTMLVideoElement;
     }
@@ -99,6 +105,11 @@ function onSeeked(e: any) {
 }
 
 function onPlay(e: any) {
+    if (!targetTabSelected) {
+        debug("no target tab selected, not doing play");
+        return;
+    }
+
     if (!targetVideoElement) {
         targetVideoElement = e.target as HTMLVideoElement;
     }
@@ -116,6 +127,11 @@ function onPlay(e: any) {
 }
 
 function onPause(e: any) {
+    if (!targetTabSelected) {
+        debug("no target tab selected, not doing pause");
+        return;
+    }
+
     if (!targetVideoElement) {
         targetVideoElement = e.target as HTMLVideoElement;
     }
@@ -133,6 +149,12 @@ function onPause(e: any) {
 }
 
 function registerEvents() {
+    if (targetVideoElement) {
+        targetVideoElement.removeEventListener("seeked", onSeeked);
+        targetVideoElement.removeEventListener("play", onPlay);
+        targetVideoElement.removeEventListener("pause", onPause);
+    }
+
     targetVideoElement = querySelectorDeep("video");
     if (!targetVideoElement) {
         debug("no video element on this page");
@@ -152,6 +174,7 @@ function registerEvents() {
 
 (() => {
     log("content script running");
+
     registerEvents();
 
     browser.runtime.onMessage.addListener((msg: Message) => {
@@ -166,13 +189,27 @@ function registerEvents() {
         else if (msg.type === MessageType.SEEK) {
             seek(msg.data);
         }
+        else if (msg.type === MessageType.TAB_SELECTED) {
+            targetTabSelected = msg.data !== undefined;
+            debug("target tab selected: " + targetTabSelected);
+        }
+        else if (msg.type === MessageType.SELECT_TAB) {
+            targetTabSelected = true;
+            debug("target tab selected: " + targetTabSelected);
+        }
+        else if (msg.type === MessageType.DESELECT_TAB) {
+            targetTabSelected = false;
+            debug("target tab selected: " + targetTabSelected);
+        }
         else if (msg.type === MessageType.TAB_CHANGED) {
             if (msg.data.changeInfo.status === "complete") {
                 debug("tab loaded");
+                debug("target tab still selected: " + targetTabSelected);
                 registerEvents();
             }
         }
         else if (msg.type === MessageType.REGRAB_VIDEO_ELEMENT) {
+            targetTabSelected = true;
             registerEvents();
         }
         else if (msg.type === MessageType.PLAYER_CONTROL_BACKWARD) {
@@ -200,5 +237,9 @@ function registerEvents() {
             seek(targetVideoElement.currentTime, false);
         }
     });
+
+    browser.runtime.sendMessage({
+        type: MessageType.TAB_INFO_REQ,
+    } as Message);
 })()
 
